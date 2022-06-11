@@ -1,0 +1,29 @@
+.myCarousel{
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
+
+.roundedImg{
+  border-radius: 5rem;
+
+}
+
+
+.swipperCol{
+  border-radius: 10%;
+  padding: 7px;
+}
+
+.swipperImg{
+  border-radius: 10%;
+}
+
+.hoverscale {
+  overflow: hidden; /* Скрываем всё за контуром */
+}
+.hoverscale img {
+  transition: 1s; /* Время эффекта */
+}
+.hoverscale img:hover {
+  transform: scale(1.1); /* Увеличиваем масштаб */
+}

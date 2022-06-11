@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <!-- Page Header-->
+        <header style="background-image: url('/assets/img/background.jpg')">
+            <h1>HEADER</h1>
+        </header>
+        <!-- Main Content-->
+        <main>
+            <div>
+                <h2>Registration</h2>
+                <div>
+                    <% if(errors!=null && errors.length > 0){ %>
+                        <ul>
+                            <% for(var i=0; i<errors.length; i++){ %>
+                                <li><%= errors[i] %></li>
+                            <% } %>
+                        </ul>
+                    <% } %>
+                </div>
+                <form action="/users/register" method="POST">
+                    <div>
+                        <input id="username" type="text" data-sb-validations="required" name="username"/>
+                        <label for="username">User Name</label>
+                    </div>
+
+                    <div>       
+                        <textarea id="password" name="password" style="height: 12rem" data-sb-validations="required"></textarea>
+                        <label for="password">Password</label>
+                    </div>
+                    <div>
+                        <button>Register</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </body>
+</html>
