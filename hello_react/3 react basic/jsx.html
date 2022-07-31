@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Don't use this in production: -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const data = [
+        {name:"Baked Salmon", ingredients:["1i", "2i", "3i"]}, 
+        {name:"Beshparmak", ingredients:["meat", "dough"]},
+      ]
+
+      function Recipe(props){
+        return (
+          <>
+            <h3>{props.name}</h3>
+            <ul>{
+              props.ingredients.map((ing, i)=>(<li key={i}>{ing}</li>))
+            }</ul>
+          </>
+        );
+      }
+
+      //{...recipe} = name:recipe.name and for all
+      function Menu(props){
+        return (
+          <article>
+
+            <header>
+              <h1>{props.title}</h1>
+            </header>
+            
+            <div className="recipes">
+              {
+                props.recipes.map(
+                  (recipe, i) => <Recipe key={i} {...recipe}/>
+                )
+              }
+            </div>
+
+          </article>
+        )
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+
+      root.render(<Menu recipes={data} title="Recipes"/>);
+    </script>
+  </body>
+</html>
