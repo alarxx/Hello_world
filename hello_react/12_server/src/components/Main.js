@@ -7,7 +7,7 @@ export default function Main(){
 	return (
 				<Routes>
 					<Route path="/" element={<Home/>}/>
-					<Route path="about" element={<About/>}/>
+					<Route path="/about" element={<About/>}/>
 					<Route path="/events" element={<Events/>}/>
 					<Route path="/contact" element={<Contact/>}/>
 					<Route path="/products" element={<Products/>}/>
