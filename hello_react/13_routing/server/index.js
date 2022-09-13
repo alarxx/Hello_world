@@ -12,16 +12,16 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+app.use(express.static(path.resolve(__dirname, '../build-client')));
 
 app.get('/counter', (req, res)=>{
 	res.sendFile(path.resolve(__dirname, '../build-client/index.html'));
 });
 
-app.get('/', (req, res)=>{
-	res.send(path.resolve(__dirname, '../build-client/index.html'));
-});
+// app.get('/', (req, res)=>{
+	// res.send(path.resolve(__dirname, '../build-client/index.html'));
+// });
 
-app.use(express.static(path.resolve(__dirname, '../build-client')));
 
 app.listen(PORT, ()=>{
 	console.log(`Server is listening on port ${PORT}`);
