@@ -4,7 +4,7 @@
 	res.writeHead(status, contentType);
 	res.end(data);
 
-	Статические ресурсы раздаются точно так же как и обычная маршрутизация
+	Статические ресурсы раздаются точно так же как и обычная маршрутизация и fetch из html
 */
 
 const http = require('http');
