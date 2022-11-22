@@ -12,6 +12,13 @@
   <body>
     <div id="root"></div>
     <script type="text/babel">
+      /*
+      React.createElement(
+        type,
+        [props],
+        [...children]
+      )
+      */
       const root = ReactDOM.createRoot(document.getElementById("root"));
       
       const sIngredients = ["milk", "peanut butter", "bananas", "eggs"];
@@ -20,11 +27,16 @@
         return React.createElement(
           "ul", 
           {className: "ingredients"}, 
-          items.map((ing, i) => React.createElement("li", {key: i}, ing)) 
+          items.map((ing, i) => React.createElement("li", {
+            className: "item", 
+            key: i
+          }, ing)) 
         )
       }
 
-      const list = React.createElement(IngredientsList, {items: sIngredients}, null);
+      const list = React.createElement(IngredientsList, 
+      {items: sIngredients}, 
+      null);
       
       console.log(list)
 
