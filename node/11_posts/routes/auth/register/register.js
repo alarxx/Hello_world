@@ -9,12 +9,15 @@ Router.get('/', (req, res)=>{
 	res.sendFile(require.main.path + '/views/auth/register.html');
 });
 
-Router.use('/', register('local'));
+Router.post('/', register('local'));
 
-Router.post('/', passport.authenticate('local', {
-	successRedirect: '/',
-	failureRedirect: '/auth/register',
-}));
+Router.post('/', passport.authenticate('local'), (req, res)=>{
+	    res.json({
+				message: 'success',
+				name: req.user.name,
+				email: req.user.email,
+			});
+});
 
 Router.use('/', (err, req, res, next)=>{
 	res.json({message: err});

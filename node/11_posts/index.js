@@ -25,7 +25,7 @@ app.use(expressSession({
 const passport = require('passport');
 app.use(passport.initialize());
 app.use(passport.session());
-const {LocalStrategy} = require('./auth/passport');
+const LocalStrategy = require('./auth/passport');
 LocalStrategy();
 
 
