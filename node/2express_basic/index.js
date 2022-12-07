@@ -3,6 +3,14 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 
+app.use(require('cors')())
+
+app.get('/users', (req, res)=>{
+	res.json({
+		login: 'alar@email.com',
+	});
+});
+
 app.get('/', (req, res)=>{
 	// res.status(200); // default status code
 	res.type('text/plain');
