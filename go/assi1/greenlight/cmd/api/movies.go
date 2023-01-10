@@ -3,22 +3,23 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/shynggys9219/greenlight/internal/data"
 	"net/http"
+
+	"github.com/shynggys9219/greenlight/internal/data"
 )
 
 // Add a createMovieHandler for the "POST /v1/movies" endpoint.
 // return a JSON response.
-func (app *application) createDirectorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	//Declare an anonymous struct to hold the information that we expect to be in the
 	// HTTP request body (note that the field names and types in the struct are a subset
 	// of the Movie struct that we created earlier). This struct will be our *target
 	// decode destination*.
 	var input struct {
-		ID      int64    `json:"id"`
-		Name    string   `json:"name"`
-		Surname string   `json:"surname"`
-		Awards  []string `json:"awards"`
+		Title   string   `json:"title"`
+		Year    int32    `json:"year"`
+		Runtime int32    `json:"runtime"`
+		Genres  []string `json:"genres"`
 	}
 
 	// if there is error with decoding, we are sending corresponding message
@@ -27,23 +28,23 @@ func (app *application) createDirectorHandler(w http.ResponseWriter, r *http.Req
 		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 	}
 
-	director := &data.Director{
-		ID:      input.ID,
-		Name:    input.Name,
-		Surname: input.Surname,
-		Awards:  input.Awards,
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
 	}
 
-	err = app.models.Director.Insert(director)
+	err = app.models.Movies.Insert(movie)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/movies/%d", director.ID))
+	headers.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"director": director}, headers)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"movie": movie}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -53,7 +54,7 @@ func (app *application) createDirectorHandler(w http.ResponseWriter, r *http.Req
 
 // Add a showMovieHandler for the "GET /v1/movies/:id" endpoint.
 // TO-DO: Change this handler to retrieve data from a real db
-func (app *application) showDirectorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -78,7 +79,7 @@ func (app *application) showDirectorHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // TO-DO: Erase existing data by id
-func (app *application) deleteDirectorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -104,7 +105,7 @@ func (app *application) deleteDirectorHandler(w http.ResponseWriter, r *http.Req
 }
 
 // TO-DO: Update existing movie
-func (app *application) updateDirectorHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
