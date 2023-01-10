@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"greenlight.alar.net/internal/data"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const DSN = "postgres://greenlight:zxcv@localhost/greenlight?sslmode=disable"
 const version = "1.0.0"
 
 type config struct {
@@ -26,6 +28,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -36,7 +39,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://greenlight:zxcv@localhost/greenlight?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", DSN, "PostgreSQL DSN")
 
 	flag.Parse()
 
@@ -57,6 +60,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	// mux dispatches requests to the handlers (router)
