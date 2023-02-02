@@ -10,7 +10,7 @@ func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Reques
 	js := `{"status": "available", "environment": %q, "version": %q}`
 	js = fmt.Sprintf(js, app.config.env, version)
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json" /*; charset=utf-8 //not necessary */)
 
 	w.Write([]byte(js))
 }
