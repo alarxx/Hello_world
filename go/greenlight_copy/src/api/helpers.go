@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -37,5 +39,44 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data any, h
 	w.WriteHeader(status)
 	w.Write(js)
 
+	return nil
+}
+
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+	err := json.NewDecoder(r.Body).Decode(dst)
+
+	if err != nil {
+		// плохой json
+		var syntaxError *json.SyntaxError
+		// тип поля json не совпадает с типом поля объекта Go
+		var unmarshalTypeError *json.UnmarshalTypeError
+		// The decode destination is not valid (usually because it is not a pointer).
+		var invalidUnmarshalError *json.InvalidUnmarshalError
+
+		switch {
+
+		case errors.As(err, &syntaxError):
+			return fmt.Errorf("body contains badly-formed JSON (at character %d)", syntaxError.Offset)
+
+		case errors.Is(err, io.ErrUnexpectedEOF):
+			return errors.New("body contains badly-formed JSON")
+
+		case errors.As(err, &unmarshalTypeError):
+			if unmarshalTypeError.Field != "" {
+				return fmt.Errorf("body contains incorrect JSON type for field %q", unmarshalTypeError.Field)
+			} else {
+				return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
+			}
+
+		case errors.As(err, &invalidUnmarshalError):
+			panic(err)
+
+		default:
+			return err
+
+		}
+	}
+
+	// код сюда никогда не дойдет
 	return nil
 }
