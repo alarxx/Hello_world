@@ -19,6 +19,7 @@ func (v *Validator) Valid() bool {
 }
 
 func (v *Validator) AddError(key, message string) {
+	// we write only 1 error for field..., but we can then add the ability to record multiple
 	if _, exists := v.Errors[key]; !exists {
 		v.Errors[key] = message
 	}
@@ -30,7 +31,7 @@ func (v *Validator) Check(ok bool, key, message string) {
 	}
 }
 
-// Generic function which return true if a specific value is in a list
+// PermittedValue - generic function which return true if a specific value is in a list
 func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	for i := range permittedValues {
 		if value == permittedValues[i] {
@@ -44,6 +45,7 @@ func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
 
+// Unique - generic function which check that all array(slice) elements are unique
 func Unique[T comparable](values []T) bool {
 	uniqueValues := make(map[T]bool)
 	// [1, 1, 1, 2, 3] -> {1: true, 2: true, 3: true}
