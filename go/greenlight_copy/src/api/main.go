@@ -1,16 +1,58 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"flag"
 	"fmt"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
 	"time"
+)
+
+/* PostgreSQL Database
+- - - Basic steps - - -
+$ sudo apt install postgresql postgresql-contrib
+$ sudo -u postgres psql
+(psql) SELECT current_user;
+(psql) CREATE DATABASE greenlight;
+(psql) \c greenlight
+(psql) CREATE ROLE greenlight WITH LOGIN PASSWORD 'password';
+(psql) CREATE EXTENSION IF NOT EXISTS citext;
+(psql) \q
+
+In order to connect to database we can use DSN or write with flags:
+$ psql --host=localhost --dbname=greenlight --username=greenlight
+
+DSN looks like: postgres://greenlight:password@localhost/greenlight
+
+- - - Install pq lib as a PostgreSQL driver - - -
+$ go get github.com/lib/pq
+To connect to database we have to use DSN
+
+- - - SQL-Migrations - - -
+$ curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+$ mv migrate.linux-amd64 $GOPATH/bin/migrate
+$ migrate -version
+
+$ migrate create -seq -ext=.sql -dir=./migrations migration_name
+$ migrate -path=./migrations -database=$DSN up
+
+To check the
+$ psql $DSN
+$ \dt or \d table
+
+migrate methods:
+	up (_ or n),
+	down(_ or n),
+	goto v,
+	force v
+*/
+
+import (
+	"context"
+	_ "github.com/lib/pq"
 )
 
 const version = "1.0.0"
