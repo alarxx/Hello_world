@@ -100,7 +100,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 func (m MovieModel) Update(movie *Movie) error {
 	/*
 		Locking on other fields or types
-		Можно использовать время или unique id, вместо version int32.
+		Можно использовать время или unique id, вместо version int.
 		With UUID type and the uuid-ossp, using the unique id as a version: version = uuid_generate_v4().
 	*/
 	query := `
