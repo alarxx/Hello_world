@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
@@ -39,7 +41,7 @@ $ migrate -version
 $ migrate create -seq -ext=.sql -dir=./migrations migration_name
 $ migrate -path=./migrations -database=$DSN up
 
-To check the
+To check the changes
 $ psql $DSN
 $ \dt or \d table
 
@@ -49,11 +51,6 @@ migrate methods:
 	goto v,
 	force v
 */
-
-import (
-	"context"
-	_ "github.com/lib/pq"
-)
 
 const version = "1.0.0"
 
