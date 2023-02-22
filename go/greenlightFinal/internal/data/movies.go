@@ -177,16 +177,23 @@ func (m MovieModel) Delete(id int64) error {
 	return nil
 }
 
-func (m *MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+func (m *MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 	// Before postgre full-text search LOWER(title) = LOWER($1)
 	// Also we have STRPOS() and ILIKE operators
 	query := fmt.Sprintf(`
-		SELECT id, created_at, title, year, runtime, genres, version
+		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE (to_tsvector('english', title) @@ plainto_tsquery('english', $1) OR $1 = '')
 		AND (genres @> $2 OR $2 = '{}')
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
+
+	/*
+		1. The WHERE clause is used to filter the data in the movies table and get the qualifying rows.
+		2. The window function count(*) OVER() is applied, which counts all the qualifying rows.
+		3. The ORDER BY rules are applied and the qualifying rows are sorted.
+		4. The LIMIT and OFFSET rules are applied and the appropriate sub-set of sorted qualifying rows is returned.
+	*/
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -195,19 +202,21 @@ func (m *MovieModel) GetAll(title string, genres []string, filters Filters) ([]*
 
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
 	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
 	// before GetAll() returns.
 	defer rows.Close()
 
+	totalRecords := 0
 	movies := []*Movie{}
 
 	for rows.Next() {
 		var movie Movie
 
 		err := rows.Scan(
+			&totalRecords,
 			&movie.ID,
 			&movie.CreatedAt,
 			&movie.Title,
@@ -218,15 +227,17 @@ func (m *MovieModel) GetAll(title string, genres []string, filters Filters) ([]*
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 
 		movies = append(movies, &movie)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return movies, nil
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return movies, metadata, nil
 }
