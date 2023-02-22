@@ -177,10 +177,12 @@ func (m MovieModel) Delete(id int64) error {
 }
 
 func (m *MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+	// Before postgre full-text search LOWER(title) = LOWER($1)
+	// Also we have STRPOS() and ILIKE operators
 	query := `
 		SELECT id, created_at, title, year, runtime, genres, version 
 		FROM movies 
-		WHERE (LOWER(title) = LOWER($1) OR $1 = '')
+		WHERE (to_tsvector('english', title) @@ plainto_tsquery('english', $1) OR $1 = '')
 		AND (genres @> $2 OR $2 = '{}')
 		ORDER BY id`
 
