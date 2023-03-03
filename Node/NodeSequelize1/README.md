@@ -1,0 +1,1 @@
+## Node Sequelize test 1
