@@ -6,50 +6,26 @@ const express = require('express');
 
 const app = express();
 
+/** CORS */
+// app.use(require('cors')())
+
 /** JSON Parsing */
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
-// parse application/json*/
+// parse application/json
 app.use(express.json());
 
 /** Static files */
 app.use(express.static(path.join(__dirname, 'public')))
 
 /** File Upload multipart/form-data */
-const multer = require('multer');
-const fs = require("fs");
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const dir = `./data/${Date.now()}`;
-        fs.mkdir(dir, (err) => {
-            if (err) {
-                cb(err, null);
-            } else {
-                cb(null, dir);
-            }
-        });
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname)
-    }
-})
+const multer = require('multer')
+require('./multer-manager').initialize({})
+const {storage, limits_40mb: limits, imageFileFilter: fileFilter, errorHandler} = require('./multer-manager');
 
-function fileFilter(req, file, cb){
-    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file.mimetype === 'application/zip'){
-        cb(null, true)
-    }
-    else {
-        cb(null, false)
-    }
-}
-
-const limits = {
-    fileSize: 1024 * 1024 * 1 // megabytes
-}
-
-const upload = multer({ fileFilter, limits, storage })
+const upload = multer({ storage, limits, fileFilter })
 const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
-app.post('/avatar', cpUpload, (req, res)=>{
+app.post('/avatar', cpUpload, errorHandler, (req, res)=>{
     console.log(req.files);
     res.send("file avatar test")
     /*
@@ -70,20 +46,30 @@ app.post('/avatar', cpUpload, (req, res)=>{
     */
 });
 
-app.get('/', (req, res)=>{
-    res.json({page: 'home'})
-});
-
-app.post('/', (req, res)=>{
-    console.log(req.body);
-    res.json(req.body)
-});
-
-app.use((err, req, res, next)=>{
-    res.status(500).json({error: err.message})
-})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=>{
     console.log(`server is listening on port ${PORT}`)
 });
+
+/*const fs = require('fs')
+const path = require("path");
+
+const currentPath = path.join(__dirname, "dataTmp", "meme.jpg");
+const destinationPath = path.join(__dirname, "data", "meme.jpg");
+
+// Нужно написать move функцию под multer
+function move(currentPath, destinationPath){
+    fs.rename(currentPath, destinationPath, function (err) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Successfully moved the file!");
+        }
+    });
+}
+
+move(currentPath, destinationPath)*/
+
+
+
