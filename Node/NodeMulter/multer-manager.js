@@ -8,7 +8,7 @@ function log(...str) {
 const multer = require('multer');
 const fs = require("fs");
 const path = require("path");
-
+const customStorage = require('./storage/custom-storage');
 
 async function clearTemp({ rootDir, force, clearTempTime }){
     try{
@@ -48,17 +48,24 @@ const object = {}
  * @clearTempIntervalTime - время в миллисекундах, частота проверки истечения срока жизни временных файлов (по ум. 1 сек).
  * @rootDir - месторасположение временных файлов (по ум. "tmp/files/").
  * */
-function initialize({
-                        clearTempTime = 1000 * 60 * 60 * 5, // 5 hours
-                        clearTempIntervalTime = 1000, // 1 second
-                        rootDir = path.join(__dirname, 'tmp', 'files')
-}){
+function initialize(opts={}){
 
-    fs.mkdir(rootDir, { recursive: true }, (err)=>{})
+    // Default values
+    if(!opts.clearTempTime){
+        opts.clearTempTime = 1000 * 60 * 60 * 5; // 5 hours
+    }
+    if(!opts.clearTempIntervalTime){
+        opts.clearTempIntervalTime = 1000; // 1 second
+    }
+    if(!opts.rootDir){
+        opts.rootDir = path.join(__dirname, 'tmp', 'files');
+    }
 
-    object.storage = multer.diskStorage({
+    fs.mkdir(opts.rootDir, { recursive: true }, (err)=>{});
+
+    /*object.storage = multer.diskStorage({
         destination: function (req, file, cb) {
-            const dir = path.join(rootDir, String(Date.now()));
+            const dir = path.join(opts.rootDir, String(Date.now()));
             fs.mkdir(dir, (err) => {
                 if (err) {
                     cb(err, null);
@@ -70,7 +77,8 @@ function initialize({
         filename: function (req, file, cb) {
             cb(null, file.originalname)
         }
-    })
+    })*/
+    object.storage = customStorage();
 
     // Для примера
     object.imageFileFilter = function(req, file, cb){
@@ -98,11 +106,11 @@ function initialize({
     }
 
     // Очистить папку буфера файлов полностью на старте
-    clearTemp({ rootDir, force: true, clearTempTime })
+    clearTemp({ rootDir: opts.rootDir, force: true, clearTempTime: opts.clearTempTime })
     // Каждую секунду проверять истек ли срок хранения какого файла
     const clearTempInterval = setInterval(()=>{
-        clearTemp({ rootDir, force: false, clearTempTime })
-    }, clearTempIntervalTime)
+        clearTemp({ rootDir: opts.rootDir, force: false, clearTempTime: opts.clearTempTime })
+    }, opts.clearTempIntervalTime)
 }
 
 

@@ -6,27 +6,24 @@ const express = require('express');
 
 const app = express();
 
-/** CORS */
-// app.use(require('cors')())
-
 /** JSON Parsing */
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 // parse application/json
 app.use(express.json());
 
-/** Static files */
-app.use(express.static(path.join(__dirname, 'public')))
-
 /** File Upload multipart/form-data */
 const multer = require('multer')
-require('./multer-manager').initialize({})
-const {storage, limits_40mb: limits, imageFileFilter: fileFilter, errorHandler} = require('./multer-manager');
+require('./multer-manager').initialize({ clearTempIntervalTime: 2000 });
+const { storage } = require('./multer-manager');
 
-const upload = multer({ storage, limits, fileFilter })
+const upload = multer({ storage });
 const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
-app.post('/avatar', cpUpload, errorHandler, (req, res)=>{
+
+app.post('/avatar', cpUpload, (req, res)=>{
+
     console.log(req.files);
+
     res.send("file avatar test")
     /*
     [Object: null prototype] {
@@ -45,6 +42,11 @@ app.post('/avatar', cpUpload, errorHandler, (req, res)=>{
     }
     */
 });
+
+app.use((err, req, res, next)=>{
+    console.log("Catching error", err)
+    res.status(400).json({error: err.message})
+})
 
 
 const PORT = process.env.PORT || 3000;

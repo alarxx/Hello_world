@@ -1,64 +1,50 @@
-var fs = require('fs')
-var os = require('os')
-var path = require('path')
-var crypto = require('crypto')
-var mkdirp = require('mkdirp')
+const fs = require('fs')
+// const os = require('os')
+const path = require('path')
+const crypto = require('crypto')
 
-function getFilename (req, file, cb) {
-  crypto.randomBytes(16, function (err, raw) {
-    cb(err, err ? undefined : raw.toString('hex'))
-  })
+/*function getFilename (req, file, cb) {
+  cb(null, file.originalname); // os.tmpdir());
 }
-
 function getDestination (req, file, cb) {
-  cb(null, os.tmpdir())
-}
+  cb(null, path.join(__dirname, 'tmp', 'files')); // os.tmpdir());
+}*/
 
-function DiskStorage (opts) {
-  this.getFilename = (opts.filename || getFilename)
+function CustomStorage (opts) {}
 
-  if (typeof opts.destination === 'string') {
-    mkdirp.sync(opts.destination)
-    this.getDestination = function ($0, $1, cb) { cb(null, opts.destination) }
-  } else {
-    this.getDestination = (opts.destination || getDestination)
-  }
-}
+CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
+  (async ()=>{
+    const hash = crypto.createHash('sha256')
 
-DiskStorage.prototype._handleFile = function _handleFile (req, file, cb) {
-  var that = this
+    // В буфер кладем хэш именно по названию, а при переносе уже пользуемся
+    const nameHash = crypto.createHash('md5').update(file.originalname).digest('hex');
 
-  that.getDestination(req, file, function (err, destination) { // Надо эти говно функции убрать!
-    if (err) return cb(err)
+    const destination = path.join('tmp', 'files', nameHash.substring(0, 1));
+    fs.mkdir(destination, { recursive: true }, (err)=>{});
 
-    that.getFilename(req, file, function (err, filename) {
-      if (err) return cb(err)
+    const finalPath = path.join(destination, nameHash);
+    const outStream = fs.createWriteStream(finalPath)
 
-      const hash = crypto.createHash('sha256')
+    file.stream.pipe(outStream)
 
-      var finalPath = path.join(destination, filename)
-      var outStream = fs.createWriteStream(finalPath)
+    file.stream.on('data', chunk => hash.update(chunk))
 
-      file.stream.pipe(outStream)
+    outStream.on('error', cb)
 
-      file.stream.on('data', chunk => hash.update(chunk))
-
-      outStream.on('error', cb)
-      outStream.on('finish', function () {
-        cb(null, {
-          hash: hash.digest('hex'),
-          destination: destination,
-          filename: filename,
-          path: finalPath,
-          size: outStream.bytesWritten
-        })
+    outStream.on('finish', function () {
+      cb(null, {
+        hash: hash.digest('hex'),
+        // destination: destination,
+        // filename: file.originalname,
+        path: finalPath,
+        size: outStream.bytesWritten
       })
     })
-  })
+  })()
 }
 
-DiskStorage.prototype._removeFile = function _removeFile (req, file, cb) {
-  var path = file.path
+CustomStorage.prototype._removeFile = function _removeFile (req, file, cb) {
+  const path = file.path
 
   delete file.hash
   delete file.destination
@@ -69,5 +55,5 @@ DiskStorage.prototype._removeFile = function _removeFile (req, file, cb) {
 }
 
 module.exports = function (opts) {
-  return new DiskStorage(opts)
+  return new CustomStorage(opts)
 }
