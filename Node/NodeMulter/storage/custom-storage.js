@@ -1,23 +1,16 @@
 const fs = require('fs')
-// const os = require('os')
 const path = require('path')
 const crypto = require('crypto')
-
-/*function getFilename (req, file, cb) {
-  cb(null, file.originalname); // os.tmpdir());
-}
-function getDestination (req, file, cb) {
-  cb(null, path.join(__dirname, 'tmp', 'files')); // os.tmpdir());
-}*/
 
 function CustomStorage (opts) {}
 
 CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
   (async ()=>{
-    const hash = crypto.createHash('sha256')
+    const user = { id: '6405e8c268dadbbfadd21932' };
+    const hash = crypto.createHash('sha256');
 
     // В буфер кладем хэш именно по названию, а при переносе уже пользуемся
-    const nameHash = crypto.createHash('md5').update(file.originalname).digest('hex');
+    const nameHash = crypto.createHash('md5').update(`${user.id}${file.originalname}`).digest('hex');
 
     const destination = path.join('tmp', 'files', nameHash.substring(0, 1));
     fs.mkdir(destination, { recursive: true }, (err)=>{});
@@ -34,8 +27,6 @@ CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
     outStream.on('finish', function () {
       cb(null, {
         hash: hash.digest('hex'),
-        // destination: destination,
-        // filename: file.originalname,
         path: finalPath,
         size: outStream.bytesWritten
       })
