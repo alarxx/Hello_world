@@ -19,7 +19,6 @@ const { storage } = require('./multer-manager');
 
 const upload = multer({ storage });
 const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
-
 app.post('/avatar', cpUpload, (req, res)=>{
 
     console.log(req.files);
