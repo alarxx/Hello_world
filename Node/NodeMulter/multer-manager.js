@@ -63,53 +63,22 @@ function initialize(opts={}){
 
     fs.mkdir(opts.rootDir, { recursive: true }, (err)=>{});
 
-    /*object.storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-            const dir = path.join(opts.rootDir, String(Date.now()));
-            fs.mkdir(dir, (err) => {
-                if (err) {
-                    cb(err, null);
-                } else {
-                    cb(null, dir);
-                }
-            });
-        },
-        filename: function (req, file, cb) {
-            cb(null, file.originalname)
-        }
-    })*/
     object.storage = customStorage();
 
-    // Для примера
-    object.imageFileFilter = function(req, file, cb){
-        if(file.mimetype === 'image/png' || file.mimetype === 'image/jpeg'){
-            cb(null, true)
-        }
-        else {
-            cb(null, false)
-        }
-    }
-
-    // Для примера
-    object.limits_40mb = {
-        fileSize: 1024 * 1024 * 40 // 40 megabytes
-    }
-
-    // Для примера
-    object.errorHandler = function (err, req, res, next){
-        if (err instanceof multer.MulterError) {
-            // A Multer error occurred when uploading.
-            res.status(400).json({error: err.message})
-        }   else {
-            next()
-        }
-    }
-
     // Очистить папку буфера файлов полностью на старте
-    clearTemp({ rootDir: opts.rootDir, force: true, clearTempTime: opts.clearTempTime })
+    clearTemp({
+        rootDir: opts.rootDir,
+        force: true,
+        clearTempTime: opts.clearTempTime
+    });
+
     // Каждую секунду проверять истек ли срок хранения какого файла
     const clearTempInterval = setInterval(()=>{
-        clearTemp({ rootDir: opts.rootDir, force: false, clearTempTime: opts.clearTempTime })
+        clearTemp({
+            rootDir: opts.rootDir,
+            force: false,
+            clearTempTime: opts.clearTempTime
+        })
     }, opts.clearTempIntervalTime)
 }
 
