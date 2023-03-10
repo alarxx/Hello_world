@@ -5,7 +5,7 @@ function log(...str) {
 }
 
 
-const multer = require('multer');
+const multer = require('./multer/index');
 const fs = require("fs");
 const path = require("path");
 const customStorage = require('./storage/custom-storage');

@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 /** File Upload multipart/form-data */
-const multer = require('multer')
+const multer = require('./multer/index')
 require('./multer-manager').initialize({ clearTempIntervalTime: 2000 });
 const { storage } = require('./multer-manager');
 

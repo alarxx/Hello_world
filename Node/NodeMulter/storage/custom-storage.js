@@ -22,10 +22,17 @@ CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
     const finalPath = path.join(destination, nameHash);
     const outStream = fs.createWriteStream(finalPath)
 
+    let progress = 0;
+
     file.stream.pipe(outStream)
 
-    file.stream.on('data', chunk => {
-      console.log(chunk.length)
+    file.stream.on('data', async chunk => {
+      if(progress === 4) {
+        console.log("starting promise")
+        await lol();
+      }
+      console.log(progress, chunk.length)
+      progress++;
       hash.update(chunk)
     })
 
@@ -40,6 +47,15 @@ CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
     })
   })()
 }
+
+async function lol(){
+  return new Promise((res, rej)=>{
+    setTimeout(()=>{
+      res('lol')
+    }, 10000)
+  })
+}
+
 
 CustomStorage.prototype._removeFile = function _removeFile (req, file, cb) {
   const path = file.path
