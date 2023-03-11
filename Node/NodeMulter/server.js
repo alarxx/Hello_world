@@ -24,7 +24,7 @@ const upload = multer({ storage });
 
 app.use(upload.any(), (req, res, next)=>{
     const files = {};
-    req.files.forEach((file, i) => {
+    req.files.map(file => {
         files[file.fieldname] = file;
     })
     req.files = files;
@@ -59,25 +59,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=>{
     console.log(`server is listening on port ${PORT}`)
 });
-
-/*const fs = require('fs')
-const path = require("path");
-
-const currentPath = path.join(__dirname, "dataTmp", "meme.jpg");
-const destinationPath = path.join(__dirname, "data", "meme.jpg");
-
-// Нужно написать move функцию под multer
-function move(currentPath, destinationPath){
-    fs.rename(currentPath, destinationPath, function (err) {
-        if (err) {
-            console.log(err)
-        } else {
-            console.log("Successfully moved the file!");
-        }
-    });
-}
-
-move(currentPath, destinationPath)*/
 
 
 

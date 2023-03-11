@@ -62,30 +62,28 @@ function _saveFileWrapper({ dstDir }){
      * Может выйти ошибка из fs.rename, если file.path в tmp почему-то не существует.
      * */
     return async function saveFile(file){
-        // Нужно переместить из tmp(file.path) в dstDir/hash[0]/hash
+        // Нужно переместить из file.tmpPath в dstDir/hash[0]/hash
         const dir = path.join(dstDir, file.hash.substring(0, 1));
         await fs.promises.mkdir(dir).catch(err=>{});
 
         // файлы с одинаковым содержимым, будут иметь одинаковый hash
-        const dstPath = path.join(dir, file.hash)
+        file.dstPath = path.join(dir, file.hash)
 
-        const tmpPath = file.path;
-        file.path = dstPath;
-
-        if(!await _fileExists(dstPath)){
+        if(!await _fileExists(file.dstPath)){
             // Может выйти ошибка, если file.path в tmp почему-то не существует.
             // Когда такое может быть? Если юзер залил 2 файла с одинаковыми названиями в одно и то же время в мс
-            await fs.promises.rename(tmpPath, dstPath);
+            await fs.promises.rename(file.tmpPath, file.dstPath);
             return true;
         }
 
         return false;
     }
 }
-function _deleteFileWrapper({ tmpDir }){
+function _deleteFileWrapper(){
     return async function deleteFile(file){
         // Нужно удалить из path
-        await fs.promises.unlink(file.path)
+        await fs.promises.unlink(file.tmpPath)
+        delete file.tmpPath
     }
 }
 
@@ -123,7 +121,7 @@ object.initialize = function(opts={}){
 
     object.saveFile = _saveFileWrapper({ ...opts });
 
-    object.deleteFile = _deleteFileWrapper({ ...opts });
+    object.deleteFile = _deleteFileWrapper();
 
     object.storage = customStorage(opts);
 }
