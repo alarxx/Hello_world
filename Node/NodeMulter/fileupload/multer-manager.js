@@ -6,7 +6,7 @@ function log(...str) {
 
 const fs = require("fs");
 const path = require("path");
-const customStorage = require('./storage/custom-storage');
+const customStorage = require('./custom-storage');
 
 
 const object = {}
@@ -123,7 +123,7 @@ object.initialize = function(opts={}){
 }
 
 // Примеры multer middleware
-// const upload = multer({ storage, fileFilter, limits })
+// const upload = multer({ fileupload, fileFilter, limits })
 // const upload_middleware = upload.fields([{ name: 'avatar,' maxCount: 1 }]);
 // const upload_middleware = upload.any(); // В принципе можно использовать any всегда, так делает express-fileupload
 

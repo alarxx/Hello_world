@@ -14,9 +14,9 @@ app.use(express.json());
 
 /** File Upload multipart/form-data */
 const multer = require('multer')
-require('../multer-manager').initialize({ clearTempIntervalTime: 2000 });
+require('../fileupload/multer-manager').initialize({ clearTempIntervalTime: 2000 });
 
-const { storage } = require('../multer-manager');
+const { storage } = require('../fileupload/multer-manager');
 
 // Для примера
 const filters = function(req, file, cb){

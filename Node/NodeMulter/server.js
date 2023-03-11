@@ -14,7 +14,7 @@ app.use(express.json());
 
 /** File Upload multipart/form-data */
 const multer = require('multer')
-const multerManager = require('./multer-manager');
+const multerManager = require('./fileupload/multer-manager');
 multerManager.initialize();
 
 const { storage, saveFile, deleteFile } = multerManager;
