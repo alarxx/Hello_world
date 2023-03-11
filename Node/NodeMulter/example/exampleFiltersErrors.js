@@ -48,24 +48,7 @@ const upload = multer({ storage, filters, limits });
 const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
 
 app.post('/avatar', cpUpload, errorHandler, (req, res)=>{
-
-    console.log(req.files);
-    /*
-    //Result of req.files:
-    [Object: null prototype] {
-        avatar: [{
-            fieldname: 'avatar',
-            originalname: '1.jpg',
-            encoding: '7bit',
-            mimetype: 'image/jpeg',
-            hash: '31710eb89a86bfdbdd472ebba6e9da23c18345a70c4063c43bcdab1ed7412df3',
-            path: 'tmp\\files\\f\\f3ccdd27d2000e3f9255a7e3e2c48800',
-            size: 135611
-        }]
-    }
-    */
-
-    res.send("file avatar test");
+    res.json(req.files);
 });
 
 app.use((err, req, res, next)=>{
