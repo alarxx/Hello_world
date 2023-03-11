@@ -4,30 +4,37 @@ function log(...str) {
     console.log(...str)
 }
 
-
-const multer = require('./multer/index');
 const fs = require("fs");
 const path = require("path");
 const customStorage = require('./storage/custom-storage');
 
-async function clearTemp({ rootDir, force, clearTempTime }){
+
+const object = {}
+
+
+/**
+ * !!!! НУЖНО ПРЯМО ДО ФАЙЛА ИДТИ, А НЕ УДАЛЯТЬ ПАПКИ
+ * */
+async function _clearTemp({ force, tmpDir, clearTempTime }){
     try{
-        const files = await fs.promises.readdir(rootDir);
+        const files = await fs.promises.readdir(tmpDir);
 
         const date = Date.now();
 
         await Promise.all(files.map(async file => {
-            const filepath = path.join(rootDir, file);
+            const filepath = path.join(tmpDir, file);
             const stats = await fs.promises.stat(filepath);
 
-            log(file, stats.isFile() ? 'file' : 'directory');
 
             if(stats.isDirectory()){
+                const expired = date - stats.birthtimeMs >= clearTempTime;
+
+                // log(file, stats.isFile() ? 'file' : 'directory', force || expired ? 'delete' : '');
+
                 // Проверяем, что папка создана больше n времени назад.
                 // Название каждой папки - время создания в миллисекундах, но лучше использовать время создания напрямую.
-                // const expired = date - stats.birthtimeMs >= clearTempTime;
-                // log(expired);
-                if(force || date - stats.birthtimeMs >= clearTempTime){
+
+                if(force || expired){
                     // fs.rm recursive force удаляет все в папке и не выводит ошибок.
                     // Вместо fs.rm аналогично можно было бы рекурсивно пользоваться fs.rmdir и fs.unlink.
                     await fs.promises.rm(filepath, { recursive: true, force: true });
@@ -40,55 +47,96 @@ async function clearTemp({ rootDir, force, clearTempTime }){
     }
 }
 
+async function _fileExists(filepath){
+    try{
+        await fs.promises.access(filepath, fs.constants.F_OK)
+        return true;
+    }catch(e){
+        return false;
+    }
+}
 
-const object = {}
+function _saveFileWrapper({ dstDir }){
+    /**
+     * returns a new file path, but returns null if the same file already exists.
+     * Может выйти ошибка из fs.rename, если file.path в tmp почему-то не существует.
+     * */
+    return async function saveFile(file){
+        // Нужно переместить из tmp(file.path) в dstDir/hash[0]/hash
+        const dir = path.join(dstDir, file.hash.substring(0, 1));
+        await fs.promises.mkdir(dir).catch(err=>{});
+
+        // файлы с одинаковым содержимым, будут иметь одинаковый hash
+        const dstPath = path.join(dir, file.hash)
+
+        const tmpPath = file.path;
+        file.path = dstPath;
+
+        if(!await _fileExists(dstPath)){
+            // Может выйти ошибка, если file.path в tmp почему-то не существует.
+            // Когда такое может быть? Если юзер залил 2 файла с одинаковыми названиями в одно и то же время в мс
+            await fs.promises.rename(tmpPath, dstPath);
+            return true;
+        }
+
+        return false;
+    }
+}
+function _deleteFileWrapper({ tmpDir }){
+    return async function deleteFile(file){
+        // Нужно удалить из path
+        await fs.promises.unlink(file.path)
+    }
+}
 
 /**
  * @clearTempTime - время в миллисекундах, по истечению которого временный файл удаляются (по ум. 5 часов).
  * @clearTempIntervalTime - время в миллисекундах, частота проверки истечения срока жизни временных файлов (по ум. 1 сек).
- * @rootDir - месторасположение временных файлов (по ум. "tmp/files/").
+ * @tmpDir - месторасположение временных файлов (по ум. "tmp/files/").
  * */
-function initialize(opts={}){
-
+object.initialize = function(opts={}){
     // Default values
     if(!opts.clearTempTime){
         opts.clearTempTime = 1000 * 60 * 60 * 5; // 5 hours
     }
     if(!opts.clearTempIntervalTime){
-        opts.clearTempIntervalTime = 1000; // 1 second
+        opts.clearTempIntervalTime = 1000 * 60; // 1 minute
     }
-    if(!opts.rootDir){
-        opts.rootDir = path.join(__dirname, 'tmp', 'files');
+    if(!opts.tmpDir){
+        opts.tmpDir = path.join('tmp');
+    }
+    if(!opts.dstDir){
+        opts.dstDir = path.join('data');
     }
 
-    fs.mkdir(opts.rootDir, { recursive: true }, (err)=>{});
-
-    object.storage = customStorage();
+    fs.promises.mkdir(opts.tmpDir, { recursive: true }).catch(err=>{});
+    fs.promises.mkdir(opts.dstDir, { recursive: true }).catch(err=>{});
 
     // Очистить папку буфера файлов полностью на старте
-    clearTemp({
-        rootDir: opts.rootDir,
-        force: true,
-        clearTempTime: opts.clearTempTime
-    });
+    _clearTemp({ force: true, ...opts });
 
     // Каждую секунду проверять истек ли срок хранения какого файла
     const clearTempInterval = setInterval(()=>{
-        clearTemp({
-            rootDir: opts.rootDir,
-            force: false,
-            clearTempTime: opts.clearTempTime
-        })
-    }, opts.clearTempIntervalTime)
+        _clearTemp({ force: false, ...opts })
+    }, opts.clearTempIntervalTime);
+
+
+    object.saveFile = _saveFileWrapper({ ...opts });
+
+    object.deleteFile = _deleteFileWrapper({ ...opts });
+
+    object.storage = customStorage(opts);
 }
-
-
-object.initialize = initialize;
 
 // Примеры multer middleware
 // const upload = multer({ storage, fileFilter, limits })
 // const upload_middleware = upload.fields([{ name: 'avatar,' maxCount: 1 }]);
 // const upload_middleware = upload.any(); // В принципе можно использовать any всегда, так делает express-fileupload
 
+object.any = function (files){
+    files.forEach(file => {
+        files[file.fieldname] = file;
+    })
+}
 
 module.exports = object;

@@ -2,37 +2,34 @@ const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
 
-const mb = 1024 * 1024;
-
-function CustomStorage (opts) {}
+function CustomStorage (opts){
+  this.tmpDir = opts.tmpDir;
+}
 
 CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
   (async ()=>{
-    const user = { id: '6405e8c268dadbbfadd21932' };
-    const hash = crypto.createHash('sha256');
+    const user = { id: '6405e8c268dadbbfadd21932' }; // from req, можно, наверное, еще в body какие нибудь данные передавать
+    const hash = crypto.createHash('md5');
 
     // В буфер кладем хэш именно по названию, 
     // ну и данные пользователя, потому что названия у разных клиентов могут совпасть, 
     // а при переносе уже пользуемся хэшем полного файла
-    const nameHash = crypto.createHash('md5').update(`${user.id}${file.originalname}`).digest('hex');
 
-    const destination = path.join('tmp', 'files', nameHash.substring(0, 1));
-    await fs.promises.mkdir(destination, { recursive: true });
+    // !!! Нужна проверка на существование такого же файла !!! Возможно клиент будет скидывать 2 одинаковых файла одновременно
+    // const nameHash = crypto.createHash('md5').update(`${user.id}${file.originalname}`).digest('hex');
+
+    const nameHash = `${user.id}-${file.originalname}`; // Это конечно не hash
+
+    const destination = path.join(this.tmpDir, String(Date.now()));
+    await fs.promises.mkdir(destination, { recursive: true }).catch(err => {});
 
     const finalPath = path.join(destination, nameHash);
     const outStream = fs.createWriteStream(finalPath)
 
-    let progress = 0;
-
     file.stream.pipe(outStream)
 
     file.stream.on('data', async chunk => {
-      if(progress === 4) {
-        console.log("starting promise")
-        await lol();
-      }
-      console.log(progress, chunk.length)
-      progress++;
+      // outStream.write(chunk)
       hash.update(chunk)
     })
 
@@ -40,22 +37,13 @@ CustomStorage.prototype._handleFile = function _handleFile (req, file, cb) {
 
     outStream.on('finish', function () {
       cb(null, {
-        hash: hash.digest('hex'),
+        hash: `${hash.digest('hex')}-${user.id}`,
         path: finalPath,
         size: outStream.bytesWritten
       })
     })
   })()
 }
-
-async function lol(){
-  return new Promise((res, rej)=>{
-    setTimeout(()=>{
-      res('lol')
-    }, 10000)
-  })
-}
-
 
 CustomStorage.prototype._removeFile = function _removeFile (req, file, cb) {
   const path = file.path

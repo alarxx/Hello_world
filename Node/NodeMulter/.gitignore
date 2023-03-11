@@ -1,5 +1,7 @@
 .idea/
 config/
+data/
+tmp/
 
 # Logs
 logs

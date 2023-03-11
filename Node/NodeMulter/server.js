@@ -13,33 +13,40 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 /** File Upload multipart/form-data */
-const multer = require('./multer/index')
-require('./multer-manager').initialize({ clearTempIntervalTime: 2000 });
-const { storage } = require('./multer-manager');
+const multer = require('multer')
+const multerManager = require('./multer-manager');
+multerManager.initialize();
+
+const { storage, saveFile, deleteFile } = multerManager;
 
 const upload = multer({ storage });
-const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
-app.post('/avatar', cpUpload, (req, res)=>{
+// const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }]);
 
-    console.log(req.files);
+app.use(upload.any(), (req, res, next)=>{
+    const files = {};
+    req.files.forEach((file, i) => {
+        files[file.fieldname] = file;
+    })
+    req.files = files;
+    next()
+})
 
-    res.send("file avatar test")
-    /*
-    [Object: null prototype] {
-        avatar: [
-            {
-              fieldname: 'avatar',
-              originalname: 'routing.png',
-              encoding: '7bit',
-              mimetype: 'image/png',
-              destination: 'data/',
-              filename: 'avatar-1677797214541-331342484',
-              path: 'data\\avatar-1677797214541-331342484',
-              size: 17421
-            }
-        ]
+app.post('/avatar', async (req, res)=>{
+
+    if(!await saveFile(req.files.avatar)){
+        await deleteFile(req.files.avatar)
     }
-    */
+
+    res.json(req.files.avatar)
+    /*{
+        "fieldname": "avatar",
+        "originalname": "multer-master.zip",
+        "encoding": "7bit",
+        "mimetype": "application/zip",
+        "hash": "cd84a9e79de45a3ed390d4dd1608cd4a-6405e8c268dadbbfadd21932",
+        "path": "data\\c\\cd84a9e79de45a3ed390d4dd1608cd4a-6405e8c268dadbbfadd21932",
+        "size": 2481661
+    }*/
 });
 
 app.use((err, req, res, next)=>{
