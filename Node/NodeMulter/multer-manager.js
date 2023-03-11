@@ -11,10 +11,6 @@ const customStorage = require('./storage/custom-storage');
 
 const object = {}
 
-
-/**
- * !!!! НУЖНО ПРЯМО ДО ФАЙЛА ИДТИ, А НЕ УДАЛЯТЬ ПАПКИ
- * */
 async function _clearTemp({ force, tmpDir, clearTempTime }){
     try{
         const files = await fs.promises.readdir(tmpDir);
