@@ -51,6 +51,7 @@ module.exports = class MulterManager {
             that._clearTemp({ force: false })
         }, this.#clearTmpIntervalTime);
     }
+
     stopClearInterval(){
         log("stop clear interval")
         // Очистить папку буфера файлов полностью
