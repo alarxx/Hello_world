@@ -91,6 +91,11 @@ module.exports = class MulterManager {
         }
     }
 
+    /**
+     * @filters - multer middleware field.
+     * @limits - multer middleware field.
+     * @fields - names and number of fields of files to be downloaded.
+     *  */
     middleware(opts={}){
         const uploadOptions = { storage: this.#storage };
         if(opts.filters) {
