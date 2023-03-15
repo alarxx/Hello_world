@@ -1,7 +1,9 @@
 /** File Upload multipart/form-data */
 
+const logger = require('../log/logger')
+const colors = require('../log/colors')
 function log(...str) {
-    console.log("MulterManager.js:", ...str)
+    logger(colors.cyan("MulterManager.js:"), ...str)
 }
 
 const fs = require("fs");
