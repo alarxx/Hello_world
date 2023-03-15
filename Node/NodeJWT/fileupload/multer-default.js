@@ -1,13 +1,12 @@
-const multerManager = require("./multer-manager");
+const MulterManager = require("./multer-manager");
 const multer = require("multer");
 
-
-module.exports = function(){
-    multerManager.initialize();
+module.exports = () => {
+    const multerManager = new MulterManager();
 
     const upload = multer({ storage: multerManager.storage });
-    return function(req, res, next){
-        upload.any()(req, res, function(){
+    return (req, res, next) => {
+        upload.any()(req, res, () => {
             const files = {};
             req.files.map(file => {
                 files[file.fieldname] = file;

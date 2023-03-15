@@ -31,10 +31,6 @@ async function _saveFile(tmpPath, dstDir, hash){
 
   return dstPath;
 }
-async function _deleteFile(tmpPath){
-  // Нужно удалить из path
-  await fs.promises.unlink(tmpPath);
-}
 
 function CustomStorage (opts){
   this.tmpDir = opts.tmpDir;
