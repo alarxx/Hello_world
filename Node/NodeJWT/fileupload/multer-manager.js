@@ -43,8 +43,7 @@ async function _clearTemp({ force, tmpDir, clearTmpTime }){
     }
 }
 
-/*
-async function _fileExists(filepath){
+/*async function _fileExists(filepath){
     try{
         await fs.promises.access(filepath, fs.constants.F_OK)
         return true;
@@ -84,8 +83,7 @@ function _deleteFileWrapper(){
 
         delete file.tmpPath;
     }
-}
-*/
+}*/
 
 /**
  * @clearTmpTime - время в миллисекундах, по истечению которого временный файл удаляются (по ум. 5 часов).
@@ -120,9 +118,9 @@ object.initialize = function(opts={}){
     }, opts.clearTmpIntervalTime);
 
 
-    /*object.saveFile = _saveFileWrapper({ ...opts });
+    object.saveFile = _saveFileWrapper({ ...opts });
 
-    object.deleteFile = _deleteFileWrapper();*/
+    object.deleteFile = _deleteFileWrapper();
 
     object.storage = customStorage(opts);
 }
@@ -132,10 +130,10 @@ object.initialize = function(opts={}){
 // const upload_middleware = upload.fields([{ name: 'avatar,' maxCount: 1 }]);
 // const upload_middleware = upload.any(); // В принципе можно использовать any всегда, так делает express-fileupload
 
-/*object.any = function (files){
+object.any = function (files){
     files.forEach(file => {
         files[file.fieldname] = file;
     })
-}*/
+}
 
 module.exports = object;
