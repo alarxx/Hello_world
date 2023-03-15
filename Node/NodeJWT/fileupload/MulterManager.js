@@ -1,7 +1,7 @@
 /** File Upload multipart/form-data */
 
 function log(...str) {
-    console.log("multer-manager", ...str)
+    console.log("MulterManager.js", ...str)
 }
 
 const fs = require("fs");
@@ -14,12 +14,12 @@ const customStorage = require('./custom-storage');
  * @tmpDir - месторасположение временных файлов (по ум. "tmp/").
  * @dstDir - месторасположение постоянных файлов (по ум. "data/").
  * */
-class MulterManager {
+module.exports = class MulterManager {
     constructor(opts={}) {
         log("Initialize Multer Manager");
 
-        this.clearTmpTime = opts.clearTmpTime || 1000 * 5; // 5 hours
-        this.clearTmpIntervalTime = opts.clearTmpIntervalTime || 1000; // 1 minute
+        this.clearTmpTime = opts.clearTmpTime || 1000 * 60 * 60 * 5; // 5 hours
+        this.clearTmpIntervalTime = opts.clearTmpIntervalTime || 1000 * 60 * 10; // 10 minute
         this.tmpDir = opts.tmpDir || path.join('tmp');
         this.dstDir = opts.dstDir || path.join('data');
 
@@ -27,16 +27,21 @@ class MulterManager {
         fs.promises.mkdir(this.dstDir, { recursive: true }).catch(err=>{});
 
         this.storage = customStorage(this);
+    }
 
+    startClearInterval(){
         // Очистить папку буфера файлов полностью на старте
         this.clearTemp({ force: true });
-
         const that = this;
-        // Каждую секунду проверять истек ли срок хранения какого файла
-        setInterval(() => {
+        // Каждую N времени проверять истек ли срок хранения какого файла
+        this.clearTmpInterval = setInterval(() => {
             that.clearTemp({ force: false })
         }, this.clearTmpIntervalTime);
-
+    }
+    stopClearInterval(){
+        // Очистить папку буфера файлов полностью
+        this.clearTemp({ force: true });
+        clearInterval(this.clearTmpInterval)
     }
 
     async clearTemp({ force }){
@@ -62,6 +67,7 @@ class MulterManager {
                         // fs.rm recursive force удаляет все в папке и не выводит ошибок.
                         // Вместо fs.rm аналогично можно было бы рекурсивно пользоваться fs.rmdir и fs.unlink.
                         await fs.promises.rm(filepath, { recursive: true, force: true });
+                        log("delete", filepath)
                     }
                 }
             }))
@@ -71,7 +77,5 @@ class MulterManager {
         }
     }
 }
-
-module.exports = MulterManager;
 
 

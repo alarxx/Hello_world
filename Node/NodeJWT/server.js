@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 /** File Upload multipart/form-data */
-app.use(require('./fileupload/multer-default')())
+app.use(require('./fileupload/multer-middleware')())
 
 app.get('/', (req, res)=>{
     res.json({page: "home"});
