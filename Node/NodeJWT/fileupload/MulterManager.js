@@ -11,12 +11,6 @@ const path = require("path");
 const multer = require("multer");
 const customStorage = require('./custom-storage');
 
-/**
- * @clearTmpTime - время в миллисекундах, по истечению которого временный файл удаляются (по ум. 5 часов).
- * @clearTmpIntervalTime - время в миллисекундах, частота проверки истечения срока жизни временных файлов (по ум. 1 сек).
- * @tmpDir - месторасположение временных файлов (по ум. "tmp/").
- * @dstDir - месторасположение постоянных файлов (по ум. "data/").
- * */
 module.exports = class MulterManager {
 
     #clearTmpTime;
@@ -26,6 +20,12 @@ module.exports = class MulterManager {
     #storage;
     #clearTmpInterval;
 
+    /**
+     * @clearTmpTime - время в миллисекундах, по истечению которого временный файл удаляются (по ум. 5 часов).
+     * @clearTmpIntervalTime - время в миллисекундах, частота проверки истечения срока жизни временных файлов (по ум. 1 сек).
+     * @tmpDir - месторасположение временных файлов (по ум. "tmp/").
+     * @dstDir - месторасположение постоянных файлов (по ум. "data/").
+     * */
     constructor(opts={}) {
         log("Initialize Multer Manager");
 
@@ -58,6 +58,9 @@ module.exports = class MulterManager {
         clearInterval(this.#clearTmpInterval)
     }
 
+    /**
+     * @force - forced deletion of a temporary folder
+     * */
     async _clearTemp({ force }){
         try{
             const files = await fs.promises.readdir(this.#tmpDir);
