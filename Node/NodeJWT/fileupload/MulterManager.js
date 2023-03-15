@@ -1,11 +1,12 @@
 /** File Upload multipart/form-data */
 
 function log(...str) {
-    console.log("MulterManager.js", ...str)
+    console.log("MulterManager.js:", ...str)
 }
 
 const fs = require("fs");
 const path = require("path");
+const multer = require("multer");
 const customStorage = require('./custom-storage');
 
 /**
@@ -15,48 +16,59 @@ const customStorage = require('./custom-storage');
  * @dstDir - месторасположение постоянных файлов (по ум. "data/").
  * */
 module.exports = class MulterManager {
+
+    #clearTmpTime;
+    #clearTmpIntervalTime;
+    #tmpDir;
+    #dstDir;
+    #storage;
+    #clearTmpInterval;
+
     constructor(opts={}) {
         log("Initialize Multer Manager");
 
-        this.clearTmpTime = opts.clearTmpTime || 1000 * 60 * 60 * 5; // 5 hours
-        this.clearTmpIntervalTime = opts.clearTmpIntervalTime || 1000 * 60 * 10; // 10 minute
-        this.tmpDir = opts.tmpDir || path.join('tmp');
-        this.dstDir = opts.dstDir || path.join('data');
+        /* Default values */
+        this.#clearTmpTime = opts.clearTmpTime || 1000 * 60 * 60 * 5; // 5 hours
+        this.#clearTmpIntervalTime = opts.clearTmpIntervalTime || 1000 * 60 * 10; // 10 minute
+        this.#tmpDir = opts.tmpDir || path.join('tmp');
+        this.#dstDir = opts.dstDir || path.join('data');
 
-        fs.promises.mkdir(this.tmpDir, { recursive: true }).catch(err=>{});
-        fs.promises.mkdir(this.dstDir, { recursive: true }).catch(err=>{});
+        fs.promises.mkdir(this.#tmpDir, { recursive: true }).catch(err=>{});
+        fs.promises.mkdir(this.#dstDir, { recursive: true }).catch(err=>{});
 
-        this.storage = customStorage(this);
+        this.#storage = customStorage({ tmpDir: this.#tmpDir, dstDir: this.#dstDir });
     }
 
     startClearInterval(){
+        log("start clear interval")
         // Очистить папку буфера файлов полностью на старте
-        this.clearTemp({ force: true });
+        this._clearTemp({ force: true });
         const that = this;
         // Каждую N времени проверять истек ли срок хранения какого файла
-        this.clearTmpInterval = setInterval(() => {
-            that.clearTemp({ force: false })
-        }, this.clearTmpIntervalTime);
+        this.#clearTmpInterval = setInterval(() => {
+            that._clearTemp({ force: false })
+        }, this.#clearTmpIntervalTime);
     }
     stopClearInterval(){
+        log("stop clear interval")
         // Очистить папку буфера файлов полностью
-        this.clearTemp({ force: true });
-        clearInterval(this.clearTmpInterval)
+        this._clearTemp({ force: true });
+        clearInterval(this.#clearTmpInterval)
     }
 
-    async clearTemp({ force }){
+    async _clearTemp({ force }){
         try{
-            const files = await fs.promises.readdir(this.tmpDir);
+            const files = await fs.promises.readdir(this.#tmpDir);
 
             const date = Date.now();
 
             await Promise.all(files.map(async file => {
-                const filepath = path.join(this.tmpDir, file);
+                const filepath = path.join(this.#tmpDir, file);
                 const stats = await fs.promises.stat(filepath);
 
 
                 if(stats.isDirectory()){
-                    const expired = date - stats.birthtimeMs >= this.clearTmpTime;
+                    const expired = date - stats.birthtimeMs >= this.#clearTmpTime;
 
                     // log(file, stats.isFile() ? 'file' : 'directory', force || expired ? 'delete' : '');
 
@@ -74,6 +86,37 @@ module.exports = class MulterManager {
         }
         catch(err){
             log(err);
+        }
+    }
+
+    middleware(opts={}){
+        const uploadOptions = { storage: this.#storage };
+        if(opts.filters) {
+            uploadOptions.filters = opts.filters;
+        }
+        if(opts.limits) {
+            uploadOptions.limits = opts.limits;
+        }
+
+        const upload = multer(uploadOptions);
+
+        let uploader;
+
+        if(opts.fields){ //[{ name: 'avatar', maxCount: 1 }]
+            uploader = upload.fields(opts.fields);
+        } else {
+            uploader = upload.any();
+        }
+
+        return function(req, res, next){
+            uploader(req, res, function(){
+                const files = {};
+                req.files.map(file => {
+                    files[file.fieldname] = file;
+                })
+                req.files = files;
+                next();
+            })
         }
     }
 }

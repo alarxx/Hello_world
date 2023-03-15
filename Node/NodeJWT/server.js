@@ -11,7 +11,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 /** File Upload multipart/form-data */
-app.use(require('./fileupload/multer-middleware')())
+const MulterManager = require("./fileupload/MulterManager");
+const multerManager = new MulterManager();
+multerManager.startClearInterval();
+app.use(multerManager.middleware());
 
 app.get('/', (req, res)=>{
     res.json({page: "home"});
