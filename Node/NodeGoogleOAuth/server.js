@@ -71,6 +71,15 @@ app.get('/auth/google/callback', passport.authenticate('google', { failureRedire
         res.redirect('/');
     });
 
+// Route to initiate authentication flow
+app.get('/auth/azure', passport.authenticate('azuread-openidconnect'));
+
+// Route to handle the callback and obtain user information
+app.post('/auth/azure/callback', passport.authenticate('azuread-openidconnect', { failureRedirect: '/login' }), (req, res) => {
+    // Successful authentication, redirect to homepage or do something else
+    res.redirect('/');
+});
+
 const checkAuthenticated = require('./middlewares/checkAuthenticated')
 
 app.get('/protected', checkAuthenticated, (req, res)=>{

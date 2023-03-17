@@ -1,5 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
+
 
 const bcrypt = require('bcrypt');
 
@@ -47,6 +49,24 @@ function initialize(passport, getUserByEmail, getUserById, findOrCreateGoogle){
             }
         }
     ));
+
+    passport.use(new OIDCStrategy({
+            allowHttpForRedirectUrl: true,
+            identityMetadata: process.env.AZURE_IDENTITY_METADATA,
+            clientID: process.env.AZURE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            responseType: process.env.AZURE_RESPONSE_TYPE,
+            responseMode: process.env.AZURE_RESPONSE_MODE,
+            redirectUrl: process.env.AZURE_REDIRECT_URL,
+            passReqToCallback: false,
+            validateIssuer: false,
+            scope: ['email'],
+        },
+        (iss, sub, profile, accessToken, refreshToken, done) => {
+            // Verify the user's identity and call done with the user object
+            console.log(iss, sub, profile)
+        })
+    )
 
     // только при создании сессии, логин
     passport.serializeUser((user, done)=>{
