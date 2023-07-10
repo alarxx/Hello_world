@@ -1,4 +1,4 @@
-package mypack;
+package threads;
 
 class MyRunnable implements Runnable {
 
@@ -25,6 +25,7 @@ class MyThread extends Thread {
         System.out.println("Class Thread");
     }
 
+    @Override
     public void run(){
         System.out.printf("%s started... \n", Thread.currentThread().getName());
         try{

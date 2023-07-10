@@ -1,4 +1,4 @@
-package mypack;
+package threads;
 
 class Queue {
     int n;
@@ -82,6 +82,7 @@ class Consumer implements Runnable {
 
 public class WaitNotify {
     public static void main(String[] args) {
+        // 2 потока пытаются взаимодействовать с 1-й очередью
         Queue q = new Queue();
         Producer p = new Producer(q);
         Consumer c = new Consumer(q);

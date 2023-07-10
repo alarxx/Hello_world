@@ -1,4 +1,4 @@
-package mypack;
+package threads;
 
 class Callme {
     /*synchronized*/ public void call(String msg){

@@ -1,4 +1,4 @@
-package mypack;
+package exceptions;
 
 public class ExceptionCause {
     static void compute(int a) throws MyException {

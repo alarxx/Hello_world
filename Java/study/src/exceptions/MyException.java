@@ -1,4 +1,4 @@
-package mypack;
+package exceptions;
 
 public class MyException extends Exception {
     private int detail;

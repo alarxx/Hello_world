@@ -2,7 +2,7 @@ package mypack;
 
 public class Main {
 
-    static void demoproc() throws NullPointerException{
+    static void demoproc() throws NullPointerException {
         NullPointerException e = new NullPointerException("Верхний уровень");
         e.initCause(new ArithmeticException());
         throw e;
