@@ -26,5 +26,34 @@ $ javac -d appmodules --module-source-path appsrc appsrc/appstart/appstart/mymod
 
 ### Execute command:
 ```
-$ java --module-path appmodules -m appstart/appstart/mymodappdemo/MyModAppDemo
+$ java --module-path appmodules -m appstart/appstart.mymodappdemo.MyModAppDemo
 ```
+
+### Keypoints
+```
+module moduleName {  
+    exports packageName;
+    requires moduleName;
+    exports packageName to moduleName;  
+    
+    // Indirect dependence
+    requires transitive moduleName;
+    
+    // Services
+    provides package.serviceProviderInterface 
+        with package.serviceProviderImps; // comma-separated
+    uses package.serviceProviderInterface;
+
+    // Только с рефлексией
+    opens packageName; // can use with to
+    
+    // Обязательный при компиляции, необязательный во время выполнения ?
+    requires static moduleName;
+}  
+
+// Пакеты доступны во время выполнения через рефлексию,
+// но на этапе компиляции доступны только явно экспортируемые пакеты
+open module moduleName {}
+```
+Unnamed Module (without module-info.java) require all other modules
+and will export all its packages as well.
