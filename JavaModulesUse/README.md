@@ -29,7 +29,7 @@ $ javac -d appmodules --module-source-path appsrc appsrc/appstart/appstart/mymod
 $ java --module-path appmodules -m appstart/appstart.mymodappdemo.MyModAppDemo
 ```
 
-### Keypoints
+### Keypoints of modules
 ```
 module moduleName {  
     exports packageName;
@@ -57,3 +57,67 @@ open module moduleName {}
 ```
 Unnamed Module (without module-info.java) require all other modules
 and will export all its packages as well.
+
+### JLINK
+jlink связывает модульные скомпилированные файлы в оптимизированный образ.  
+
+Для использования jlink, jar и т.д. нужно добавить в переменные среды в PATH путь к bin java, у меня он:
+"C:\Program Files\Java\jdk-20\bin"
+
+flags
+```
+--launcher AppBatchName=dir/Main // compiled
+--module-path 
+    "%JAVA_HOME%"/jmods; // Java API
+    mymodapp/appmodules  // Our modules
+    
+// Какие модули нужно включить, 
+// jlink подхватыет нужные модули автоматически.
+// Указываем модуль с точкой входа
+--add-modules appstart  
+
+--output appdirname
+```
+
+jlink example
+```
+$ jlink 
+    --launcher MyModApp=appstart/appstart.mymodappdemo.MyModAppDemo
+    --module-path "%JAVA_HOME%"/jmods;mymodapp/appmodules
+    --add-modules appstart 
+    --output mylinkedmodapp
+```
+
+### JAR creation example
+```
+--create 
+--file=mymodapp/applib/name.jar
+
+// в какую директорию и какие файлы включать (все)
+-C dir .
+
+// точка входа, если она есть
+--main-class package.Main       
+```
+```
+$ jar 
+    --create 
+    --file=mymodapp\applib\appstart.jar
+    --main-class=appstart.mymodappdemo.MyModAppDemo
+    -С mymodapp\appmodules\appstart .
+```
+Linking JAR files:
+```
+$ jlink 
+    --launcher MyModApp=appstart
+    --module-path "%JAVA_HOME%"/jmods;mymodapp/applib
+    --add-modules appstart 
+    --output mylinkedmodapp
+```
+Execute JAR files:
+```
+$ java -р mymodapp\applib -m appstart
+```
+
+### JMOD - новый формат
+### jpackage - native executable applications
