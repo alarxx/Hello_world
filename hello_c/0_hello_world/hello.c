@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <locale.h>
 
+struct Person {
+	int age;
+	char name[256];
+	float size;
+}
+
 int main(){
 	char *locale = setlocale(LC_ALL, "");
 
@@ -44,6 +50,7 @@ int main(){
 	printf("mynumber = %i \n", mynumber);
 	printf("mychar = %c \n", mychar);
 	printf("myascii = %i \n", myascii);
+
 
 	return 0;
 }
