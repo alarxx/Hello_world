@@ -6,16 +6,19 @@ struct Person {
 	int age;
 	char name[256];
 	float size;
-}
+};
 
 int main(){
+	// Настраиваем locale для отображения русской кодировки в терминале
 	char *locale = setlocale(LC_ALL, "");
 
 	printf("Hello, World! \n");
 	printf("Привет, Мир! \n");
 
-	int a = 013;
+	// Pointers and addresses
+	int a = 013; // octal, to convert try strol
 	int *b = &a;
+	*b = 12; // this should change a
 
 	printf("a = %i \n", a);
 	printf("&a = %p \n", &a);
@@ -25,12 +28,17 @@ int main(){
 	printf("b = %p \n", b);
 	printf("&b = %p \n", &b);
 
+	// Strings
+
 	// char=1byte=8bit - ASCII=7bit
 	char str[] = "String \n";
 	printf(str);
 
+	// Memory Allocation 
+
 	char *pstr = malloc(7); // memory allocation in bytes
 	pstr[0] = '1';
+	// Type Casting
 	pstr[1] = (char) 42;
 	pstr[2] = (char) 43l;
 	pstr[3] = (char) '4';
@@ -43,6 +51,7 @@ int main(){
 
 	free(pstr);
 
+	// Type Casting
 	int mynumber = 35;
 	char mychar = (char) mynumber;
 	// char mychar = 'A';
