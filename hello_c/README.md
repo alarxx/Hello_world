@@ -93,6 +93,18 @@ See an example in `pointer.c` in function `print_dublicate_pointer_info`.
 
 После освобождения выделенной памяти указатель всё ещё указывает на область памяти, которая уже может быть занята не им.
 
+```c
+int * ptr = malloc(8);
+
+// ptr = 0x01234ABC
+// &ptr = 0x56789DEF
+
+free(ptr);
+
+// ptr = 0x01234ABC, still
+// &ptr = 0x56789DEF
+```
+
 Поэтому иногда reference value of freed pointer присваивают NULL:
 ```c
 free(ptr);
@@ -100,3 +112,8 @@ ptr = NULL;
 ```
 
 See an example in `free.c`.
+
+
+---
+
+
