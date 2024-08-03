@@ -31,22 +31,28 @@ int main(){
 	// Strings
 
 	// char=1byte=8bit - ASCII=7bit
-	char str[] = "String \n";
+	char str[] = "String as char array \n";
 	printf(str);
 
 	// Memory Allocation 
 
 	char *pstr = malloc(7); // memory allocation in bytes
+	if(pstr == NULL){ // If space is insufficient, allocation fails and returns a NULL pointer. (geeksforgeeks)
+		fprintf(stderr, "Memory allocation failed!\n"); // basically writes to a file stream
+		// exit(0);
+		return 1;
+	}
+
 	pstr[0] = '1';
 	// Type Casting
-	pstr[1] = (char) 42;
-	pstr[2] = (char) 43l;
+	pstr[1] = (char) 2 + 40; // first ASCII values are commands and not printable
+	pstr[2] = (char) 3l + 40l;
 	pstr[3] = (char) '4';
-	pstr[4] = (char) 45.f;
-	pstr[5] = (char) 46.;
-	pstr[6] = (char) 47.l;
+	pstr[4] = (char) 5.f + 40.f;
+	pstr[5] = (char) 6. + 40.; // double by default
+	pstr[6] = (char) 7.l + 40.l; // long double
 	pstr[7] = '\0'; // Null Character Byte
-	printf("pstr[1] (%%c) = %c\n", pstr[1]);
+	printf("pstr[1] (%%c) = %c\n", pstr[1]); // I checked to see why not visible, ASCII
 	printf("%s \n", pstr);
 
 	free(pstr);
