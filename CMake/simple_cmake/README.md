@@ -40,7 +40,8 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 ---
 
-**CMake demo**
+**Usage:**
+
 ```sh
 cmake [options] -S <path-to-source> -B <path-to-build>
 ```
