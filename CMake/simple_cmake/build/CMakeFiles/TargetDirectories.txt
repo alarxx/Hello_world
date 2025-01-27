@@ -1,0 +1,3 @@
+/home/john/Git/Hello_world/CMake/simple_cmake/build/CMakeFiles/MY_PROJECT.dir
+/home/john/Git/Hello_world/CMake/simple_cmake/build/CMakeFiles/edit_cache.dir
+/home/john/Git/Hello_world/CMake/simple_cmake/build/CMakeFiles/rebuild_cache.dir
