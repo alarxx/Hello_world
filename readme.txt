@@ -1,4 +1,4 @@
 no readme
 hellol world
 
-dump of simple programs
+dump of basic introductory simple programs
