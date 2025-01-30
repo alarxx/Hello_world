@@ -38,3 +38,9 @@ Executable trim добавился в _/usr/local/bin/trim_.
 Executable builds in Debug mode by default, rather than Release which is going to be optimized.
 
 See: `CMAKE_BUILD_TYPE`
+
+---
+
+## References
+
+- CMake Tutorial EP 2 | Libraries | Installing | Pairing with Executables | RE-DONE! https://www.youtube.com/watch?v=DDHCEE_PHOU
