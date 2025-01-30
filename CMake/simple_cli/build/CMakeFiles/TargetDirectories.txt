@@ -1,0 +1,7 @@
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/trim.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/edit_cache.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/rebuild_cache.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/list_install_components.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/install.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/install/local.dir
+/home/john/Git/Hello_world/CMake/simple_cli/build/CMakeFiles/install/strip.dir
