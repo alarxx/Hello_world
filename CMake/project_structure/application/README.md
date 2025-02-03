@@ -9,12 +9,16 @@
 	- single object rebuild flaw (long compile time for a single change)
 - monolithic - "thick", i.e. all project in one main.cpp
 
-**Folder per class:**
+---
+
+**Folder per class:**  
 src/
 - Data/
 	- Data.cpp
 	- Data.h
 - main.cpp
+
+---
 
 ### Build and Run
 
