@@ -50,3 +50,5 @@ su -c "make install" root
 ```cpp
 #include <mymath/adder.h>
 ```
+Instead of providing relative path,
+compiler will automatically find the library.
