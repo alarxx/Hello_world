@@ -1,19 +1,19 @@
 # Library structure
 
 **Main Idea**  
-The standard is public headers (interfaces) go in _include/projname/_,  
-and everything else goes in src (or source, code).
+The standard is public headers (interfaces) go in _`include/projname/`_,  
+and everything else goes in _`src/`_ (or source, code).
 
-**_my_library/_**
-- _build/_
-- _include/my_library/_ - public interfaces
-	- _math.h_
-- _src/_ - private
-	- _adder.cpp_
-	- _adder.h_
-- _CMakeLists.txt_
-- _README.md_
-- _.gitignore_
+**_`my_library/`_**
+- _`build/`_
+- _`include/my_library/`_ - public interfaces
+	- _`math.h`_
+- _`src/`_ - private
+	- _`adder.cpp`_
+	- _`adder.h`_
+- _`CMakeLists.txt`_
+- _`README.md`_
+- _`.gitignore`_
 
 
 **Usage:**
