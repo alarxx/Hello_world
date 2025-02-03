@@ -22,8 +22,8 @@ make
 ```
 
 Получается, у нас сгенерируется статичная библиотека libmymath.a:
-1. building object files (.o)
-2. linking them to static library (.a)
+1. building object files (.o)  
+2. linking them to static library (.a)  
 Заметь, что мы написали название архива `mymath`, а получили `lib`+`mymath.a`.
 
 Как включить статичную библиотеку в исполняемый файл программы?
