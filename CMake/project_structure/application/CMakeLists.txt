@@ -2,4 +2,4 @@ cmake_minimum_required(VERSION 3.13)
 
 project(application)
 
-add_executable(app main.cpp Data/Data.cpp)
+add_executable(app ./src/main.cpp ./src/Data/Data.cpp)
