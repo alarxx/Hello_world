@@ -1,7 +1,7 @@
 # Library structure
 
 **Main Idea**  
-The standard is public headers (interfaces) go in _include/projname/_,
+The standard is public headers (interfaces) go in _include/projname/_,  
 and everything else goes in src (or source, code).
 
 **_my_library/_**
