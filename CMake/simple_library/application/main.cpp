@@ -1,17 +1,10 @@
-#include "Data/Data.h"
 #include <iostream>
 
+#include "../mymathlib/adder.h"
+// #include <mymath/adder.h> // if you installed the library
 
 int main(){
-    Data data;
-
-    data.setData(123);
-
-    int whatis;
-    whatis = data.getData(); // functional style
-    // data.getData(&whatis);
-
-    std::cout << "data: " << whatis << "\n";
+	std::cout << mymath::add(7, 8) << "\n";
 
     return EXIT_SUCCESS;
 }

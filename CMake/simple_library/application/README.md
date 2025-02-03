@@ -1,4 +1,6 @@
-# Application organization
+# Application
+
+## Application structure organization
 
 Options:
 - folders per class
@@ -16,7 +18,7 @@ src/
 	- Data.h
 - main.cpp
 
-## Running
+### Running
 
 Compilation:
 ```sh
@@ -27,3 +29,7 @@ Running:
 ```sh
 ./program
 ```
+
+## Using My Math Library
+
+
