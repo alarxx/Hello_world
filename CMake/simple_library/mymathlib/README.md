@@ -53,6 +53,3 @@ su -c "make install" root
 Instead of providing relative path,
 compiler will automatically find the library.
 
-
-Мы можем скопировать и сбилдить библиотеку сами, либо в случае closed source можно взять pre-built library и headers, и после link with your project.
-
