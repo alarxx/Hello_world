@@ -55,12 +55,17 @@ int main(int argc, char * argv[]){
 }
 
 
+// int FOOBAR;
+// int FOOBAR; // ERROR, previously declared
 extern int FOOBAR;
 extern int FOOBAR;
 // FOOBAR = 123; // нельзя присваивать вне функции или вне определения
 
-void fun(); // extern by default
-void fun();
+void global(); // extern by default
+void global();
+void global(){
+    cout << "Global!" << "\n";
+}
 
 /*
  * Local scope
@@ -77,8 +82,4 @@ namespace {
     void local(){
         cout << "Local!" << "\n";
     }
-}
-
-void global(){
-    cout << "Global!" << "\n";
 }
