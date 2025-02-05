@@ -1,35 +1,23 @@
 # Application
 
-## Application structure organization
+Здесь мы создаем исполняемый файл, который пытаемся слинковать с mymathlib. 
 
-Options:
-- folders per class
-- folders per section
-- pure flat
-- headers for everything
-	- one main cpp file
-	- single object rebuild flaw (long compile time for a single change)
-- monolithic - "thick", i.e. all project in one main.cpp
+До этого мы должны были build библиотеку локально, check _`../mymathlib/`_.
 
-Folder per class:
-src/
-- Data/
-	- Data.cpp
-	- Data.h
-- main.cpp
+Если мы сбилдили библиотеку, то ее можно использовать указав relative path в _`CMakeLists.txt`_.
+Но, также можно "установить" библиотеку в local standard location, и тогда компилятор будет иметь доступ, сможет найти и подключить её без указания пути.
 
-### Running
+## Build and Run
 
-Compilation:
+Build:
 ```sh
-g++ main.cpp Data/Data.cpp -o program
+mkdir build
+cd build
+cmake ..
+make
 ```
 
-Running:
+Run:
 ```sh
-./program
+./app
 ```
-
-## Using My Math Library
-
-
