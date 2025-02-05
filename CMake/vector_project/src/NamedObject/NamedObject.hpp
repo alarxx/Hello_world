@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <string>
-#include "../mymath/mymath.h"
+#include "../mymath/mymath.hpp"
 
 namespace mymath {
 	class NamedObject {

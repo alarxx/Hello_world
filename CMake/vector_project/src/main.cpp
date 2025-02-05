@@ -1,5 +1,5 @@
 #include <iostream>
-#include "mymath/mymath.h"
+#include "mymath/mymath.hpp"
 
 using std::cout, std::endl;
 

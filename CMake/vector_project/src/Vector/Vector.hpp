@@ -7,7 +7,7 @@
 #define _VECTOR_H_
 
 #include "cassert"
-#include "../mymath/mymath.h"
+#include "../mymath/mymath.hpp"
 
 using mymath::NamedObject;
 

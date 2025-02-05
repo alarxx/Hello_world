@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <cassert>
-#include "Vector.h"
+#include "Vector.hpp"
 
 using std::cout, std::endl;
 

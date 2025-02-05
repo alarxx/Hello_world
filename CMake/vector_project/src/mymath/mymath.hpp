@@ -4,7 +4,7 @@
 
 namespace mymath {}
 
-#include "../NamedObject/NamedObject.h"
-#include "../Vector/Vector.h"
+#include "../NamedObject/NamedObject.hpp"
+#include "../Vector/Vector.hpp"
 
 #endif

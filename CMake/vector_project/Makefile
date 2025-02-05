@@ -34,7 +34,7 @@ TARGET = app
 # flags: -type f|d -name "" -or -and -exec -delete etc.
 # выдает относительные пути в виде './dir/entry'
 SRCS := $(shell find ./ -type f -name "*.cpp" -or -name "*.cxx" -or -name "*.c")
-HEADERS := $(shell find ./ -type f -name "*.h")
+HEADERS := $(shell find ./ -type f -name "*.h" -or -type f -name "*.hpp")
 # delete './':
 SRCS := $(patsubst ./%, %, $(SRCS))
 HEADERS := $(patsubst ./%, %, $(HEADERS))
@@ -79,6 +79,7 @@ ${TARGET_LOCATION}: ${OBJS}
 ${PROJECT_BINARY_DIR}/%.o: %.cpp | ${PROJECT_BINARY_DIR}
 # Создаём подкаталоги внутри build/
 	mkdir -p $(dir $@)
+# -MMD to track included header files as dependencies in corresponding .d files
 	${CC} ${CFLAGS} $< -MMD -c -o $@
 
 ${PROJECT_BINARY_DIR}:
