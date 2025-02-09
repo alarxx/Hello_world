@@ -88,7 +88,13 @@ namespace mymath::myvector {
     }
 
 
-    // Copy Operator
+    /* Copy Operator
+     * Actually, I think overriding this operator is bad,
+     * because this is unintuitive that there's deep copying going on:
+        Vector b = vector;
+     * Even worse is the copying during dereferencing:
+        Vector b = *ptr_vector;
+     */
     Vector & Vector::operator = (const Vector & other) {
         if(this != &other){
             copy(this, &other);
@@ -102,7 +108,8 @@ namespace mymath::myvector {
         temp.setName("Temporary Vector");
         copy(&temp, &v1); // v1 copy
         temp *= v2; // умножаем v2 прямо на temp
-        // Return Value Optimization (RVO)
+        // Return Value Optimization (RVO):
+        // problem is since temp is in Stack memory it should be deleted after this function is finished
         return temp;
     }
 

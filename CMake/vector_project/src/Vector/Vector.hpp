@@ -69,6 +69,7 @@ namespace mymath::myvector {
 			Vector& operator = (const Vector& other);
 
 			// По идее не inline
+			// friend функция не принадлежит классу, но имеет доступ к private полям
 			friend void copy(Vector * const self, const Vector * const other);
 
 			// Index Operator

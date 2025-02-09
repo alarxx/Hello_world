@@ -1,3 +1,7 @@
+/**
+ * Main interface
+ */
+
 #pragma once
 #ifndef _MY_MATH_
 #define _MY_MATH_

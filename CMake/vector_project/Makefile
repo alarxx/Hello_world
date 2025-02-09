@@ -44,6 +44,7 @@ HEADERS := $(patsubst ./%, %, $(HEADERS))
 OBJS := ${SRCS:%.cpp=${PROJECT_BINARY_DIR}/%.o}
 
 # rebuild object files if dependency header files modified
+# include makefiles, the "-" ignores errors
 -include $(OBJS:.o=.d)
 
 # prints all your source files
