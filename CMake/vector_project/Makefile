@@ -1,3 +1,9 @@
+# target [target2 ...]: [prerequisites ...]
+	# [command1
+	#  command2
+	# ........]
+
+# Phony targets are not files
 .PHONY: build \
 	run \
 	clean \
@@ -19,18 +25,20 @@ help:
 	@echo "... 	print_objects"
 	@echo "... 	fyi_file"
 
+# --- User Defined ---
 # := - simple fixed assignment
 # = - recursive, вычисляется каждый раз
 CC = g++
 CFLAGS = -Wall -pedantic
 PROJECT_BINARY_DIR = out/build
 TARGET = app
+# ------
 
-# 1. hard coded source files
-# SRCS = main.cpp scum.cpp
-# 2. flat search
-# SRCS := ${wildcard */*.cpp}
-# 3. recursive search using bash:
+# 1. hard coded source files:
+# 	SRCS = main.cpp scum.cpp
+# 2. flat search:
+# 	SRCS := ${wildcard */*.cpp}
+# 3. recursive search using bash: (current approach)
 # flags: -type f|d -name "" -or -and -exec -delete etc.
 # выдает относительные пути в виде './dir/entry'
 SRCS := $(shell find ./ -type f -name "*.cpp" -or -name "*.cxx" -or -name "*.c")
