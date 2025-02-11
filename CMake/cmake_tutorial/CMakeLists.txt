@@ -99,8 +99,22 @@ target_include_directories(Tutorial PUBLIC
 # --- Install ---
 
 # `install` executable and header files in standard location to be found by terminal
-install(TARGETS Tutorial DESTINATION bin)
-install(FILES ${PROJECT_BINARY_DIR}/TutorialConfig.h DESTINATION include)
+install(
+    TARGETS Tutorial
+    DESTINATION bin
+)
+# CMAKE_PROJECT_NAME - Global project(name)
+# PROJECT_NAME - local project(name)
+install(
+    FILES ${PROJECT_BINARY_DIR}/TutorialConfig.h
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)
+
+# Include License in packed archive
+install(
+	FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+	DESTINATION share/doc/${CMAKE_PROJECT_NAME}
+)
 
 #$ cmake -S .. -B .
 #$ cmake --build .
@@ -149,3 +163,11 @@ do_test(Tutorial 0.0001 "0.0001 is 0.01")
 #$ ctest -VV|--extra-verbose
 
 # ------
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_VERSION_MAJOR "${Tutorial_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${Tutorial_VERSION_MINOR}")
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include(CPack)
