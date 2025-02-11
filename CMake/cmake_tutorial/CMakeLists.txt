@@ -165,9 +165,20 @@ do_test(Tutorial 0.0001 "0.0001 is 0.01")
 # ------
 
 include(InstallRequiredSystemLibraries)
+# IDK why licence is only visible in the archives
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RPM_PACKAGE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_VERSION_MAJOR "${Tutorial_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${Tutorial_VERSION_MINOR}")
-set(CPACK_GENERATOR "TGZ")
-set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_GENERATOR "ZIP;TGZ;DEB;RPM;NSIS;IFW")
+set(CPACK_SOURCE_GENERATOR "ZIP;TGZ;DEB;RPM;NSIS;IFW")
+
+# CPACK_PACKAGE_CONTACT
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Alar Akilbekov alar.akilbekov@gmail.com")
+
+set(CPACK_IFW_VERBOSE ON)
+# Do I need to set version as a string?
+set(CPACK_IFW_FRAMEWORK_VERSION 4.8.1)
+set(CPACK_IFW_ROOT "/Qt/QtIFW-4.8.1/")
+
 include(CPack)
