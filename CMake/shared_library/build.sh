@@ -1,8 +1,8 @@
 #! /bin/sh
 
 cd mymathlib
-# Position Independent Code
-g++ mymath.cpp -c -fPIC
+# Position Independent Code (PIC), но и без этого работает почему-то
+g++ mymath.cpp -c
 g++ mymath.o -o libmymath.so -shared
 
 echo Shared library generated!
