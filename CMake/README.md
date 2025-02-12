@@ -7,5 +7,6 @@
 7) git_submodules/
 8) cmake_tutorial/
 9) shared_library/
+10) call_c_from_cpp/
 
 mess started
