@@ -6,15 +6,21 @@ cmake_minimum_required(VERSION 3.15)
 
 # set the project name, version and languages
 # By default, LANGUAGES C CXX, keeping only CXX
-project(Tutorial VERSION 1.0 LANGUAGES CXX)
+project(Tutorial VERSION 1.1 LANGUAGES CXX)
 
 # --- Shared libraries by Default ---
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+# Зачем все в одном flat в build/ хранить?
+# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+
+# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
+# CMAKE_INSTALL_PREFIX = /usr/local/, при `cmake --install .` все отлично, туда все устанавливается,
+# но проблема при cpack, при `apt install ./.deb` должен указываться на головной lib/
+list(APPEND CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME}")
 
 # ------
 
@@ -74,6 +80,9 @@ add_subdirectory(MathFunctions)
 
 # add the executable
 add_executable(Tutorial tutorial.cxx)
+
+# При cpack все равно неправильно указывает rpath
+# set_target_properties(Tutorial PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Оказывается в прошлых версиях они не добавляля названия библиотек напрямую, а использовали list переменные, которые потом просто вставляли куда нужно
 list(APPEND EXTRA_LIBS MathFunctions)
@@ -173,6 +182,8 @@ do_test(Tutorial 0.0001 "0.0001 is 0.01")
 #$ ctest -VV|--extra-verbose
 
 # ------
+
+# CPack у меня не работает с Shared Libraries
 
 include(InstallRequiredSystemLibraries)
 # IDK why licence is only visible in the archives
