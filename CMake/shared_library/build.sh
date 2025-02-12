@@ -2,7 +2,7 @@
 
 cd mymathlib
 # Position Independent Code (PIC), но и без этого работает почему-то
-g++ mymath.cpp -c
+g++ mymath.cpp -c -fPIC
 g++ mymath.o -o libmymath.so -shared
 
 echo Shared library generated!
