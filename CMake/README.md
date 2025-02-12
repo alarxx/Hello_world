@@ -6,5 +6,6 @@
 6) vector_project/
 7) git_submodules/
 8) cmake_tutorial/
+9) shared_library/
 
 mess started
