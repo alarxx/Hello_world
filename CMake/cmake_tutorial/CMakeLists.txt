@@ -8,19 +8,36 @@ cmake_minimum_required(VERSION 3.15)
 # By default, LANGUAGES C CXX, keeping only CXX
 project(Tutorial VERSION 1.1 LANGUAGES CXX)
 
-# --- Shared libraries by Default ---
+# --- Shared Libraries ---
 
 # Зачем все в одном flat в build/ хранить?
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+# Set default library linking, if not specified
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
+# RPATH
 # https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
-# CMAKE_INSTALL_PREFIX = /usr/local/, при `cmake --install .` все отлично, туда все устанавливается,
-# но проблема при cpack, при `apt install ./.deb` должен указываться на головной lib/
+# CMAKE_INSTALL_PREFIX = /usr/local/, при `cmake --install .` все отлично:
 list(APPEND CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME}")
+# Но проблема при cpack, при `apt install ./.deb` должен указываться на головной lib/
+# Думаю лучше вручную ручную через CLI указывать RPATH:
+#$ cmake -DCMAKE_INSTALL_RPATH="/lib/Tutorial" ..
+#$ cmake --build .
+#$ cpack
+#$ apt remove tutorial
+#$ apt install ./.deb
+
+# Конечно, можно указывать LD_LIBRARY_PATH, но это inconvenient
+
+# Useful command to check path to shared libraries:
+#$ ldd ./Tutorial
+
+# INSTALL_RPATH_USE_LINK_PATH to Tutorial doesn't work, idk
+# При cpack все равно неправильно указывает rpath
+# set_target_properties(Tutorial PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # ------
 
@@ -80,9 +97,6 @@ add_subdirectory(MathFunctions)
 
 # add the executable
 add_executable(Tutorial tutorial.cxx)
-
-# При cpack все равно неправильно указывает rpath
-# set_target_properties(Tutorial PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Оказывается в прошлых версиях они не добавляля названия библиотек напрямую, а использовали list переменные, которые потом просто вставляли куда нужно
 list(APPEND EXTRA_LIBS MathFunctions)
@@ -183,7 +197,14 @@ do_test(Tutorial 0.0001 "0.0001 is 0.01")
 
 # ------
 
-# CPack у меня не работает с Shared Libraries
+# --- CPack ---
+
+# CPack is a rabbit hole
+# - QtInstaller прикольный, устанавливает в /opt/, но это не CLI-tool, idk
+# - Потестил на .deb, вроде работает
+#       Discovery не показывает License
+#       Устанавливает в корневые /lib/ и /bin/, не знаю на сколько это правильно
+#       Shared Libraries c .deb вроде работают, но нужно указывать RPATH
 
 include(InstallRequiredSystemLibraries)
 # IDK why licence is only visible in the archives
@@ -203,3 +224,5 @@ set(CPACK_IFW_FRAMEWORK_VERSION 4.8.1)
 set(CPACK_IFW_ROOT "/Qt/QtIFW-4.8.1/")
 
 include(CPack)
+
+# ------
