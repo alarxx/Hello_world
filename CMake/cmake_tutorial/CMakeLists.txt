@@ -8,6 +8,16 @@ cmake_minimum_required(VERSION 3.15)
 # By default, LANGUAGES C CXX, keeping only CXX
 project(Tutorial VERSION 1.0 LANGUAGES CXX)
 
+# --- Shared libraries by Default ---
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+# ------
+
 # --- Specify the Version of C++ Standard ---
 
 # set(CMAKE_CXX_STANDARD 98)

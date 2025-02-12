@@ -1,10 +1,10 @@
 message("MathFunctions CMakeLists.txt")
 
-message("PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
-message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
-message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-message("CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
+# message("PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
+# message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
+# message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+# message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+# message("CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
 
 # Модульность CMake
 # Чем отличается от `add_subdirectory()`?
@@ -12,7 +12,7 @@ include(MakeTable.cmake)
 
 # add_library(MathFunctions STATIC MathFunctions.cxx mysqrt.cxx)
 # but mysqrt is optional now
-add_library(MathFunctions STATIC MathFunctions.cxx)
+add_library(MathFunctions MathFunctions.cxx)
 # C++ Standard Version Requirement
 # Из-за PRIVATE не распространяется на Tutorial
 target_link_libraries(MathFunctions PRIVATE tutorial_compiler_flags)
@@ -57,11 +57,19 @@ endif()
 if (USE_MYMATH)
 # pass precompiled definition to be accessible from our source files (#define USE_MYMATH)
     target_compile_definitions(MathFunctions PUBLIC USE_MYMATH)
+    # define the symbol stating we are using the declspec(dllexport) when building on windows
+    target_compile_definitions(MathFunctions PRIVATE "EXPORTING_MYMATH")
 # Добавляем и Линкуем библиотеку, если она нужна
 # Порядок важен
-    add_library(SqrtLibrary STATIC
+    # add_library(SqrtLibrary STATIC
+    add_library(SqrtLibrary
         mysqrt.cxx
         ${CMAKE_CURRENT_BINARY_DIR}/Table.h
+    )
+    # State that SqrtLibrary need PIC when the default is shared libraries
+    # Почему-то работает и без этого, и вопрос почему мы другим библиотекам не пишет это
+    set_target_properties(SqrtLibrary PROPERTIES
+        POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
     )
     target_include_directories(SqrtLibrary PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(MathFunctions PRIVATE SqrtLibrary)
@@ -90,8 +98,14 @@ set(installable_libs MathFunctions tutorial_compiler_flags)
 if(TARGET SqrtLibrary)
     list(APPEND installable_libs SqrtLibrary)
 endif()
-install(TARGETS ${installable_libs} DESTINATION lib/${CMAKE_PROJECT_NAME})
-install(FILES MathFunctions.h DESTINATION include/${CMAKE_PROJECT_NAME})
+install(
+    TARGETS ${installable_libs}
+    DESTINATION lib/${CMAKE_PROJECT_NAME}
+)
+install(
+    FILES MathFunctions.h
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)
 # Сейчас flat, и по идее, нужно оборачивать библиотеку так, чтобы было:
 # lib/MathFunctions/MathFunctions.a
 # include/MathFunctions/MathFunctions.h
