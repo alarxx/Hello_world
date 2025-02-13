@@ -7,10 +7,14 @@
 3. Set up git ssh
 4. Compile and run using GCC
 
-Почему-то добавляет к библиотекам prefix cyg, а не lib, типа чтобы не перепутать:
-- cygSqrtLibrary.dll
-- cygMathFunctions.dll
+Почему-то при сборке с CMake добавляет к библиотекам prefix `cyg*`, а не `lib*`, типа чтобы не перепутать:
+- cygSqrtLibrary.dll  
+- cygMathFunctions.dll  
+Я не разобрался, как сделать нормально.
 
+Еще есть MSYS2, но он тоже добавляет префикс - `msys2_*`, вроде.
+
+У меня не получилось настроить RPATH так, как мы делали, .dll не находилась.  
 Оказывается, .exe по умолчанию ищут .dll относительно своей папки.
 
 ---
