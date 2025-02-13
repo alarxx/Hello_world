@@ -54,6 +54,8 @@ int main(){
 
 `extern "C"` заставляет компилятор C++ использовать чистое имя, без name mangling, поэтому мы можем искать функцию через `dlsym(handle, "add");`.
 
+Check: https://github.com/alarxx/Hello_world/tree/main/CMake/call_c_from_cpp
+
 ---
 
 Проверь, что app не слинкован никак с libmymath.so:
