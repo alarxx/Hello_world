@@ -19,6 +19,15 @@
 
 ---
 
+Ещё есть вот такие штуки для функций:  
+- `__declspec(dllexport)`  
+- `__declspec(dllimport)`  
+И без _WIN32  
+- `__attribute__ ((visibility ("default")))`  
+Но пока все без них работало...
+
+---
+
 ```sh
 #! /bin/sh
 
@@ -42,3 +51,4 @@ mv ./mymathlib/libmymath.dll ./
 # ldd - print shared object dependencies, idk
 ldd app
 ```
+
