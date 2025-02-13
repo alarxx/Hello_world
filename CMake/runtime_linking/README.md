@@ -47,9 +47,11 @@ int main(){
 ```
 
 **Dynamic vs. Runtime Linking**
+
 Когда мы указывали `-lmymath` линкер на этапе компиляции находил `libmymath.so` и разрешал все "symbols".
 
 **Name mangling**
+
 `extern "C"` заставляет компилятор C++ использовать чистое имя, без name mangling, поэтому мы можем искать функцию через `dlsym(handle, "add");`.
 
 ---
