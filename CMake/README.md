@@ -8,5 +8,7 @@
 8) cmake_tutorial/
 9) shared_library/
 10) call_c_from_cpp/
+11) runtime_linking/
+12) win_dlls/
 
 mess started
