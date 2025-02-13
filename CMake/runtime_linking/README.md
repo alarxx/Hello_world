@@ -1,85 +1,86 @@
-# Shared Library
+# Runtime Linking
 
-https://www3.ntu.edu.sg/home/ehchua/programming/cpp/gcc_make.html
-
-- **Static Libraries:**
-	- .a (archive file) - linux
-	- .lib (library) - windows
-- **Shared Libraries:**
-	- .so (shared objects) - linux
-	- .dll (dynamic link library) - windows
-- **Header-only library** (static)
-
-Advantages of shared libraries:
-1. Disk space preservation
-2. RAM preservation
-3. Ease of maintenance
-
-**Searching headers and libraries**
-- `-Idir`: (_include-paths_) где искать header-files of `#include`
-- `-Ldir`: (_library-paths_) где искать библиотеки
-- `-lxxx` and `-lxxx.lib`: for libraries itself
-
----
-
-
-## Commands for this repo
-
-**Как компилировать статические и динамические библиотеки**
-
-- https://www.youtube.com/watch?v=Slfwk28vhws
-- https://stackoverflow.com/questions/10358745/how-to-use-libraries
-
----
-
-**Static libraries** are created by simply archiving the `*.o` files with the `ar` program:
+**_`build.sh`_**:
 ```sh
-# Create the object files (only one here)
-g++ -c mymath.cpp
-# Create the archive (insert the lib prefix)
-ar rcs libmymath.a mymath.o
-```
+#! /bin/sh
 
----
-
-**Shared libraries** are created with the `g++`, `-fpic`, and `-shared` options:
-
-```sh
-g++ main.cpp -c
-
-# nm - list symbols from object files
-nm main.o
-# На C красиво выходит, на C++ name mangling
-```
-
-Compile Shared Library:
-```sh
-# Create the object file with Position Independent Code[**]
-g++ mymath.cpp -c -fpic
-# Crate the shared library (insert the lib prefix)
+cd mymathlib
+# Position Independent Code (PIC), но и без этого работает почему-то
+g++ mymath.cpp -c -fPIC
 g++ mymath.o -o libmymath.so -shared
 
-# file - determine file type
-file libmymath.so
-# libmymath.so: ELF 64-bit LSB shared object, x86-64
-```
+echo Shared library generated!
 
-Link with library:
-```sh
+cd ../
 g++ main.cpp -c
-g++ main.o -o app -lmymath -L. -Wl,-rpath=.
-# -Wl,-rpath=. - insert the path to the shared library into the binary
-# ld -rpath=.
+# g++ main.o -o app -lmymath -L./mymathlib -Wl,-rpath=./mymathlib
+g++ main.o -o app -ldl
 
-# nm - list symbols from object files
-nm -D app
+echo "app's shared object dependencies:"
 
 # ldd - print shared object dependencies
 ldd app
-# libmymath.so => not found or <dir>
+
+echo "Note that app doesn't depend on libmymath.so!"
+echo "It will link in runtime"
+
 ```
 
+---
+
+**_`main.cpp`_**:
+```cpp
+#include <dlfcn.h>
+
+int main(){
+	// загружаем in runtime, а не во время линковки
+	void * handle = dlopen("./mymathlib/libmymath.so", RTLD_LAZY);
+	...
+	// Это просто указатель на функцию
+	using add_t = int (*)(int, int);
+	// dlsym() search for the named symbol
+	// check name mangling in call_c_from_cpp
+	add_t add = (add_t) dlsym(handle, "add");
+	// Usage
+	int c = add(1, 1);
+}
+```
+
+**Dynamic vs. Runtime Linking**
+Когда мы указывали `-lmymath` линкер на этапе компиляции находил `libmymath.so` и разрешал все "symbols".
+
+**Name mangling**
+`extern "C"` заставляет компилятор C++ использовать чистое имя, без name mangling, поэтому мы можем искать функцию через `dlsym(handle, "add");`.
+
+---
+
+Проверь, что app не слинкован никак с libmymath.so:
 ```sh
-# если не использовали -rpath при линковке, то нужно указать путь к shared libraries,
-LD_LIBRARY_PATH=./ ./app
+$ ldd ./app
+
+       linux-vdso.so.1 (0x00007ffcaa5f0000)
+       libstdc++.so.6 => /lib/...
+       libc.so.6 => /lib/...
+       libm.so.6 => /lib/...
+       libgcc_s.so.1 => /lib/...
+```
+
+---
+
+**Can we link in runtime static library? No**
+
+```sh
+#! /bin/sh
+
+cd ./mymathlib
+g++ mymath.cpp -c
+ar rcs libmymath.a mymath.o
+
+echo Static library generated!
+```
+
+Я попробовал слинковаться in runtime со статичной библиотекой, и коненчно не получилось
+```sh
+./app
+# Failed to load library: ./mymathlib/libmymath.a: invalid ELF header
 ```
