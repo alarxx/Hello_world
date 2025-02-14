@@ -91,7 +91,20 @@ if (USE_MYMATH)
 endif()
 
 # target include requirements, now you can only link with library and include it's headers
-target_include_directories(MathFunctions INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+    MathFunctions
+    INTERFACE
+    # Only one of these:
+    # absolute path tied to the current machine
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    # export different location when being used from within the build directory and install / package.
+    $<INSTALL_INTERFACE:include/${CMAKE_PROJECT_NAME}>
+
+    # Обычно в библиотеках интерфейсы находятся в ./include/Library/, и поэтому должно бы быть так:
+    # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    # Мы в install(FILES MathFunctions.h) указываем DESTINATION include/Tutorial/include
+    # $<INSTALL_INTERFACE:include/${CMAKE_PROJECT_NAME}/include>
+)
 
 # `install` libraries and header files in standard location to be found by terminal
 set(installable_libs MathFunctions tutorial_compiler_flags)
@@ -100,12 +113,14 @@ if(TARGET SqrtLibrary)
 endif()
 install(
     TARGETS ${installable_libs}
+# `EXPORT` generates MathFunctionsTargets.cmake с кодом для импорта перечисленных target-ов.
+    EXPORT MathFunctionsTargets
     DESTINATION lib/${CMAKE_PROJECT_NAME}
 )
 install(
     FILES MathFunctions.h
-    DESTINATION include/${CMAKE_PROJECT_NAME}
-)
-# Сейчас flat, и по идее, нужно оборачивать библиотеку так, чтобы было:
+# По идее, нужно оборачивать библиотеку так, чтобы было:
 # lib/MathFunctions/MathFunctions.a
 # include/MathFunctions/MathFunctions.h
+    DESTINATION include/${CMAKE_PROJECT_NAME}
+)

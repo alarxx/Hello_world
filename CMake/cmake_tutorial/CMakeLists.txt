@@ -24,14 +24,16 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 # CMAKE_INSTALL_PREFIX = /usr/local/, при `cmake --install .` все отлично:
 list(APPEND CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME}")
 # Но проблема при cpack, при `apt install ./.deb` должен указываться на головной lib/
-# Думаю лучше вручную ручную через CLI указывать RPATH:
+# Думаю лучше вручную через CLI указывать RPATH:
 #$ cmake -DCMAKE_INSTALL_RPATH="/lib/Tutorial" ..
 #$ cmake --build .
 #$ cpack
 #$ apt remove tutorial
 #$ apt install ./.deb
 
-# Конечно, можно указывать LD_LIBRARY_PATH, но это inconvenient
+# Этот подход работает и когда мы export-ируем библиотеку, бинарник использующий её правильно линкуется.
+
+# Конечно, можно указывать LD_LIBRARY_PATH=<path> при каждом вызове Tutorial, но это inconvenient
 
 # Useful command to check path to shared libraries:
 #$ ldd ./Tutorial
@@ -155,6 +157,49 @@ install(
 #$ cmake --install .
 #   --config <Debug|Release>
 #   --prefix <override-directory>
+
+# ------
+
+# --- Export ---
+
+# Мне кажется этот раздел должен быть внутри MathFunctions/CMakeLists.txt
+
+# Explicitly install the generated MathFunctionsTargets.cmake
+install(
+    EXPORT MathFunctionsTargets
+    FILE MathFunctionsTargets.cmake
+    DESTINATION lib/cmake/MathFunctions
+)
+
+include (CMakePackageConfigHelpers)
+# as configure_file(), generates the config file that includes the exports
+configure_package_config_file(
+	# in
+	${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+	# out
+	"${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfig.cmake"
+
+	INSTALL_DESTINATION "lib/cmake/MathFunctions"
+	# NO_SET_AND_CHECK_MACRO
+	# NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfigVersion.cmake"
+    VERSION "${Tutorial_VERSION_MAJOR}.${Tutorial_VERSION_MINOR}"
+    COMPATIBILITY AnyNewerVersion
+)
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfigVersion.cmake
+    DESTINATION lib/cmake/MathFunctions
+)
+
+# generate MathFunctionsTargets.cmake, allowing MathFunctionsConfig.cmake to be used without needing it to be installed
+export(
+    EXPORT MathFunctionsTargets
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsTargets.cmake"
+)
 
 # ------
 
