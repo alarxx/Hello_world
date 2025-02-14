@@ -44,14 +44,6 @@ ar rcs libmymath.a mymath.o
 
 **Shared libraries** are created with the `g++`, `-fpic`, and `-shared` options:
 
-```sh
-g++ main.cpp -c
-
-# nm - list symbols from object files
-nm main.o
-# На C красиво выходит, на C++ name mangling
-```
-
 Compile Shared Library:
 ```sh
 # Create the object file with Position Independent Code[**]
@@ -67,6 +59,9 @@ file libmymath.so
 Link with library:
 ```sh
 g++ main.cpp -c
+nm main.o
+# На C красиво выходит, на C++ name mangling
+
 g++ main.o -o app -lmymath -L. -Wl,-rpath=.
 # -Wl,-rpath=. - insert the path to the shared library into the binary
 # ld -rpath=.
@@ -83,3 +78,6 @@ ldd app
 # если не использовали -rpath при линковке, то нужно указать путь к shared libraries,
 LD_LIBRARY_PATH=./ ./app
 ```
+
+-> https://github.com/alarxx/Hello_world/tree/main/CMake/runtime_linking
+
