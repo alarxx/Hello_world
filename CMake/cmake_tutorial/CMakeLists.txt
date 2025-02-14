@@ -189,11 +189,15 @@ configure_package_config_file(
 	# NO_SET_AND_CHECK_MACRO
 	# NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
+
+# Дополнительно еще сгенерируем файл с версией
+# и укажем backward compatibility
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfigVersion.cmake"
     VERSION "${Tutorial_VERSION_MAJOR}.${Tutorial_VERSION_MINOR}"
     COMPATIBILITY AnyNewerVersion
 )
+# Эти файлы должны находиться в стандартном расположении
 install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsConfig.cmake
@@ -202,9 +206,11 @@ install(
 )
 
 # generate MathFunctionsTargets.cmake, allowing MathFunctionsConfig.cmake to be used without needing it to be installed
+# 1. add_subdirectory
+# 2. include()
 export(
-    EXPORT MathFunctionsTargets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsTargets.cmake"
+	EXPORT MathFunctionsTargets
+	FILE "${CMAKE_CURRENT_BINARY_DIR}/MathFunctionsTargets.cmake"
 )
 
 # ------
