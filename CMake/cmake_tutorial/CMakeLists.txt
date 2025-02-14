@@ -96,10 +96,16 @@ endif()
 set(MY_CUSTOM_VARIABLE "MY CUSTOM VARIABLE")
 configure_file(TutorialConfig.h.in TutorialConfig.h)
 
+# Packaging Debug and Release
+# postfix with d - libraries in debug
+set(CMAKE_DEBUG_POSTFIX d)
+
 add_subdirectory(MathFunctions)
 
 # add the executable
 add_executable(Tutorial tutorial.cxx)
+# postfix with d - libraries in debug
+set_target_properties(Tutorial PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 # Оказывается в прошлых версиях они не добавляля названия библиотек напрямую, а использовали list переменные, которые потом просто вставляли куда нужно
 list(APPEND EXTRA_LIBS MathFunctions)

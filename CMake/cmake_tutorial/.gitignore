@@ -4,6 +4,16 @@
 # build/ - only dir, any nested dir e.g. a/build
 # c/build - specifically this dir, not b/c/build
 
+# cpack
+*.zip
+*.tar.gz
+*.rpm
+*.deb
+*.exe
+*.run
+**/[Dd][Ee][Bb][Uu][Gg]/**
+**/[Rr][Ee][Ll][Ee][Aa][Ss][Ee]/**
+_CPack_Packages/
 
 # Standard Git C++ gitignore
 

@@ -17,6 +17,10 @@ add_library(MathFunctions MathFunctions.cxx)
 # Из-за PRIVATE не распространяется на Tutorial
 target_link_libraries(MathFunctions PRIVATE tutorial_compiler_flags)
 
+# Packaging Debug and Release
+set_property(TARGET MathFunctions PROPERTY VERSION "1.0.0")
+set_property(TARGET MathFunctions PROPERTY SOVERSION "1")
+
 # Adding option
 # -DUSE_MYMATH=OFF|ON, choice will be cached
 option(USE_MYMATH "Use tutorial provided math implementation" ON)
