@@ -1,6 +1,8 @@
 
 # Template <typename T>
 
+https://www.geeksforgeeks.org/templates-cpp/
+
 ----
 
 #### Function Template
@@ -12,6 +14,9 @@ template <typename T> T square(T v){
 ```
 
 #### Template Specialization
+
+https://www.geeksforgeeks.org/template-specialization-c/
+
 ```cpp
 // Template Specialization: for char data type
 template <> char square<char>(char v){
@@ -25,6 +30,8 @@ template <> char square<char>(char v){
 #### `typename` vs. `class`
 
 typename keyword is equivalent to a class, but not always.
+
+template template
 
 Шаблонный класс принимающий в виде типа шаблонный класс:
 ```cpp
