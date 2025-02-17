@@ -13,6 +13,7 @@ int main(){
      - const_cast, взлом const, кстати еще можно pointer-ами взломать
 */
 
+    // Upcasting is easy: Derived* -> Base *
     Animal * dogptr = new Dog("DogNameP");
     /*
     // C-style casting works
