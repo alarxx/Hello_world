@@ -1,5 +1,5 @@
 
-# Template <typename T>
+# `Template <typename T>`
 
 https://www.geeksforgeeks.org/templates-cpp/
 
