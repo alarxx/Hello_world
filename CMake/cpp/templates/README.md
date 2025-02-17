@@ -117,6 +117,8 @@ std::cout << "data object 2: " << dataObj2.get() << std::endl;
 
 ## Nice Syntax with initializer_list
 
+https://www.geeksforgeeks.org/std-initializer_list-in-cpp-11/
+
 Что мы хотим реализовать:
 ```cpp
 // Array<int, 5> arr = {1, 2, 3, 4};
