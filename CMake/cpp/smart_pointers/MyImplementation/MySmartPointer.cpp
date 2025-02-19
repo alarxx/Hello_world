@@ -4,10 +4,15 @@
 // --- Data ---
 class Data {
 private:
-    int theData;
+    int __theData;
 public:
-    Data(int data) : theData(data) {}
-    int get(){ return theData; }
+    Data(int data) : __theData(data) {
+        std::cout << "Data Constructor" << "\n";
+    }
+    ~Data() {
+        std::cout << "~Data Destructor" << "\n";
+    }
+    int get(){ return __theData; }
 };
 // ------
 
@@ -68,14 +73,15 @@ void error_example(){
     delete data;
 }
 
+
 int main(){
-    // // MySmartPointer<Data> sdptr = data; // error: conversion from ‘Data*’ to non-scalar type ‘MySmartPointer<Data>’ requested
-    // MySmartPointer<Data> sdptr(new Data(123));
-    //
-    // sayHello(&sdptr);
-    //
-    // // std::cout << (*sdptr).get() << std::endl;
-    // std::cout << sdptr->get() << std::endl; // тут два раза вызывается arrow operator? Потому что должно быть ptr->get()
+    // MySmartPointer<Data> sdptr = data; // error: conversion from ‘Data*’ to non-scalar type ‘MySmartPointer<Data>’ requested
+    MySmartPointer<Data> sdptr(new Data(123));
+
+    sayHello(&sdptr);
+
+    // std::cout << (*sdptr).get() << std::endl;
+    std::cout << sdptr->get() << std::endl; // тут два раза вызывается arrow operator? Потому что должно быть ptr->get()
 
     error_example();
 }
