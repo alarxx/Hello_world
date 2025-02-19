@@ -1,6 +1,10 @@
 
 ---
 
+2 important files:
+- [ControlBlock.cpp](https://github.com/alarxx/Hello_world/blob/main/CMake/cpp/smart_pointers/MyImplementation/ControlBlock.cpp) - main control block implementation file
+- [cpp_impl.cpp](https://github.com/alarxx/Hello_world/blob/main/CMake/cpp/smart_pointers/MyImplementation/cpp_impl.cpp) - how it work in C++ (almost the same)
+
 #### Smart Pointers. Brief
 
 **Smart pointer** - это просто обертка над raw pointer-ом.
