@@ -10,6 +10,13 @@
 10) call_c_from_cpp/
 11) runtime_linking/
 12) win_dlls/
+13) cpp/
+    - simple_files/
+    - time/ - ctime
+    - try_catch/
+    - templates/
+    - polymorphism/
+    - smart_pointers/
 
 mess started
 
