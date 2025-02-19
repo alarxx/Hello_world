@@ -1,5 +1,23 @@
-// https://www.geeksforgeeks.org/smart-pointers-cpp/
-#include <iostream>
+/*
+    SPDX-License-Identifier: MPL-2.0
+    --------------------------------
+    This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+    If a copy of the MPL was not distributed with this file,
+    You can obtain one at https://mozilla.org/MPL/2.0/.
+
+    Provided “as is”, without warranty of any kind.
+
+    Copyright © 2025 Alar Akilbekov. All rights reserved.
+
+ * References:
+ * https://www.geeksforgeeks.org/smart-pointers-cpp/
+ * https://stackoverflow.com/questions/12030650/when-is-stdweak-ptr-useful
+ * https://stackoverflow.com/questions/5671241/how-does-weak-ptr-work
+ * https://en.cppreference.com/w/cpp/memory/shared_ptr
+ */
+
+
+ #include <iostream>
 
 // --- Data ---
 
