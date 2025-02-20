@@ -1,4 +1,4 @@
-# auto, decltype, and type_info
+# `auto`, `decltype`, and `type_info`
 ---
 
 References:
