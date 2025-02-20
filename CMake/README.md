@@ -17,6 +17,11 @@
     - templates/
     - polymorphism/
     - smart_pointers/
+    - auto/
+    - using/
+    - lambda/
+    - iterator/
+    - containers/
 
 mess started
 
