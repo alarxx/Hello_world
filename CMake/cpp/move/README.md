@@ -2,6 +2,51 @@
 
 [[C++ Programming Language]]
 
+
+## Brief
+
+Constructor:
+```cpp
+// Data(int data)
+Data data1(100);
+Data data2(200);
+```
+
+Copy constructor:
+```cpp
+// Data(const Data & lother)
+Data data_copy = data1;
+```
+Copy assignment:
+```cpp
+// Data & operator = (const Data & lother)
+data_copy = data2;
+```
+
+Move constructor:
+```cpp
+// Data(const Data && rother)
+Data data_move = std::move(data1);
+// Now data1 is shallow, "stealed"
+```
+Move assignment :
+```cpp
+// Data & operator = (const Data && rother)
+data_move = std::move(data2);
+// now data2 is shallow, "stealed"
+```
+
+По STL реализации по умолчанию мы всегда должны создавать deep copy, а если нет, то мы должны использовать `std::move`.
+
+Это отличается от Java например, где при присваивании мы просто создаем ссылку на объект, shallow copy.
+
+Да и зачем в C++ создавать shallow копии при присваивании и такую неявную ссылку, если мы можем использовать реальные ссылки и указатели?
+```cpp
+Data * dataptr = &data;
+Data & dataref = *data;
+```
+
+
 ## lvalue = rvalue
 
 **References:**
