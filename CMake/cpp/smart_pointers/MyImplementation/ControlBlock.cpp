@@ -167,6 +167,10 @@ public:
      */
     MySmartPointer<T> & operator = (const MySmartPointer<T> & other) = delete;
 
+    /* Move Semantics */
+    MySmartPointer(MySmartPointer<T> && other) = delete;
+    MySmartPointer<T> & operator = (MySmartPointer<T> && other) = delete;
+
     void sayHello(){
         std::cout << "Hello, I am Smart Pointer!" << "\n";
     }
@@ -237,6 +241,10 @@ public:
     MyWeakPointer<T> & operator = (const MySmartPointer<T> & mySmartPointer) = delete;
 
     MyWeakPointer<T> & operator = (const MyWeakPointer<T> & other) = delete;
+
+    /* Move Semantics */
+    MyWeakPointer(MyWeakPointer<T> && other) = delete;
+    MyWeakPointer<T> & operator = (MyWeakPointer<T> && other) = delete;
 
     ~MyWeakPointer(){
         std::cout << "{~~~start~Destructor call of MyWeakPointer~~~" << "\n";

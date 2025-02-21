@@ -347,3 +347,14 @@ if(MySmartPointer<Data> tmp = weak.lock()){
 **А если вернуть из функции объект allocated in Stack?**
 Объкт in Stack не удалится, он перейдет в место откуда вызывали функцию, и уже там будет жить.
 -> Named Return Value Optimization
+
+---
+
+Здесь нужно учитывать move semantics
+Могут быть проблемы из-за этого
+- [[C++ Programming Language - lvalue, rvalue and move semantics]]
+- [[C++ Programming Language - The rule of 3-5-0]]
+
+То есть я не думал про это, и мы не должны использовать `std::move(shared_ptr)`.
+
+Нас `explicit` в конструкторе тоже защищает от того, чтобы вызывался конструктор по rvalue при передачи rvalue в функцию.
