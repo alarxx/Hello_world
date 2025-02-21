@@ -19,6 +19,7 @@
     - smart_pointers/
     - auto/
     - using/
+    - move/
     - lambda/
     - iterator/
     - containers/
