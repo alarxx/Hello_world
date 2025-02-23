@@ -168,3 +168,420 @@ template <typename T, int tsize> Array<T, tsize>::Array(std::initializer_list<T>
     }
 }
 ```
+
+
+## Advanced
+
+### Partial specialization
+
+<- [[federico - Modern CPP Programming#Partial specialization]]
+
+```cpp
+// Generic class template
+template <typename T, typename R>
+class A {
+	T x;
+};
+
+// Partial specialization
+template <typename T>
+class A <T, int> {
+	T y;
+};
+
+// Full specialization
+template <>
+class A <float, int> {
+	T z;
+};
+```
+
+==Нельзя создавать partially specialized class и specialized function.==
+Класс должен быть specialized, либо оба generic, либо оба fully specialized.
+```cpp
+template <typename T, typename R>
+class A {
+public:
+	template <typename X, typename Y> void fun();
+};
+
+
+template <>
+template <typename X, template Y>
+void A<int, int>::fun<X, Y>(){ // OK
+	...
+}
+
+template <typename T, typename R>
+template <>
+void A<T, R>::fun<int, int>(){ // Error
+	...
+}
+```
+
+---
+
+### Dependent name
+
+`a.template g<int>()`
+
+Здесь `template` говорит, что то что последует является шаблоном (function or class):
+```cpp
+#include <iostream>
+
+template <typename T> class A {
+public:
+    template <typename R> void g(){
+        std::cout << "T: " << typeid(T).name() << std::endl;
+        std::cout << "R: " << typeid(R).name() << std::endl;
+    }
+};
+
+template <typename T> void f(A<T> a){
+    // a.g<int>(); // (a.g < int) > ()
+    // Здесь template говорит, что то что последует является шаблоном (function or class)
+    a.template g<int>();
+}
+
+int main(){
+    A<float> a;
+    f(a);
+}
+```
+
+---
+
+##### Inheritance
+
+```cpp
+template <typename T> class A {
+public:
+    T x;
+    A(T t) : x(t) {}
+    void f(){ cout << "Classic A" << endl; }
+};
+
+template <> class A<float> {
+public:
+    float x;
+    A(float t) : x(t) {}
+    void f(){ cout << "Float A" << endl; }
+};
+
+template <typename T>
+class B : A<T> {
+public:
+	using A<T>::x; // Иначе компилятор не понимает что за x
+	using A<T>::f;
+
+    B(T t) : A<T>(t) {}
+
+    void g(){
+        cout << x << endl;
+        f();
+    }
+};
+```
+
+```cpp
+B b(1.f);
+b.g();
+// 1
+// Float A
+```
+
+---
+### `using type = T`
+
+Template класс хранит его тип в поле, к которому можно получить доступ.
+
+Мы можем хранить сам тип класса, и потом создавать переменные с type of этого класса:
+```cpp
+#include <iostream>
+
+template <typename T>
+class A {
+public:
+    using type = T; // the type of class
+};
+
+template <typename T>
+using AType = typename A<T>::type;
+
+template <typename T>
+void fun(A<T> a){
+    AType<T> var;
+    // typename A<T>::type var;
+    // int var;
+    std::cout << typeid(var).name() << std::endl; // i
+}
+```
+
+```cpp
+A<int> ai;
+std::cout << typeid(ai).name() << std::endl; // 1AIiE
+fun(ai);
+```
+
+---
+### Template deduction guide
+
+`MyString(char const *) -> MyString<std::string>;`
+
+Если мы явно не укажем тип при создании объекта класса, то будет происходить автоматический deduction, но мы можем указать **deduction guide**, в котором указываем какой тип должен быть, если придет определенный тип в конструктор:
+```cpp
+template <typename T>
+class MyString {
+public:
+    MyString(T t){
+	    std::cout << "Constructor: " << typeid(t).name() << std::endl;
+	    // PKc
+	    // NSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+    }
+    MyString get(){
+        return MyString("abc");
+        // return MyString<T>("abc");
+    }
+};
+
+// Deduction guide
+MyString(char const *) -> MyString<std::string>;
+
+// Factory vs. MyString<const char *> cstr("abc")
+template <typename T> auto make_my_string(const T& x){
+    return MyString(x);
+    // deduction guide make:
+    // return MyString<std::string>(x);
+}
+```
+
+Когда мы создадим `MyString` без указания типа и передадим `const char *`, то будет `std::string` due to **deduction guide**:
+```cpp
+const char * cstr = "abc";
+
+MyString csptr(cstr); // string
+// MyString csptr={cstr}; // string
+// MyString csptr = cstr; // error, присваивание с deduction к шаблону не поддерживается
+// MyString<const char *> csptr = cstr; // const char *
+```
+
+Но если мы explicitly укажем тип, то deduction guide естественно не сработает:
+```cpp
+MyString<const char *> csptr(cstr); // const char *
+```
+
+И если мы хотим, чтобы всегда было `<std::string>` мы можем использовать factory:
+```cpp
+MyString sptr = make_my_string(cstr);
+```
+Теперь мы не можем explicitly указывать тип:
+```cpp
+// MyString<const char *> sptr = make_my_string(cstr);
+// Error, <string> to <const char *>
+```
+
+---
+### Compile-time recursive
+
+[[Meta Programming]]
+
+Template meta-programming is fast in runtime, nothing is computed at runtime,
+it is computed at compile-time so it may slow down compilation time.
+###### Compile-time Factorial Example
+
+Class
+```cpp
+template <int N>
+class Factorial {
+public:
+    static constexpr int number = N * Factorial<N - 1>::number;
+};
+
+// Base case
+template <>
+class Factorial<1>{
+public:
+    static constexpr int number = 1;
+};
+```
+
+Function
+```cpp
+template <typename T> constexpr T factorial(const T N){
+    T tmp = N;
+    for(int i=2; i<N; i++){
+        tmp *= i;
+    }
+    return tmp;
+}
+```
+
+```cpp
+// constexpr int number = Factorial<5>::number;
+constexpr int number = factorial<int>(5);
+cout << number << endl; // 120
+```
+
+##### Compile-time Log Example
+
+```cpp
+template <int A, int B>
+class Max {
+public:
+    static constexpr int value = A > B ? A : B;
+};
+
+template <int N, int BASE>
+class Log {
+public:
+    static_assert(N > 0, "Number must be greater than zero");
+    static_assert(BASE > 0, "Base must be greater than zero");
+
+    static constexpr int TMP = Max<1, N / BASE>::value;
+    static constexpr int value = 1 + Log<TMP, BASE>::value;
+};
+
+// Base case
+template <int BASE>
+class Log<1, BASE> {
+public:
+    static constexpr int value = 0;
+};
+```
+
+```cpp
+constexpr int log2_20 = Log<20, 2>::value;
+cout << log2_20 << endl; // 4
+// 10 = 1
+// 5 = +1
+// 2.5 = +1
+// 1.25 = +1
+// 1 = +0
+```
+
+##### Unroll example
+
+Compile-time / Runtime mix
+Не совсем понятно, как будто бы это все происходит in runtime.
+```cpp
+template <int NUM_UNROLL, int STEP = 0>
+class Unroll {
+public:
+    template <typename Op>
+    static void run(Op op){
+        op(STEP);
+        Unroll<NUM_UNROLL, STEP + 1>::run(op);
+    }
+};
+
+// Base case
+template <int NUM_UNROLL>
+class Unroll<NUM_UNROLL, NUM_UNROLL> {
+public:
+    template <typename Op>
+    static void run(Op op){
+        op(NUM_UNROLL);
+    }
+};
+```
+
+```cpp
+auto lambda = [](int n){
+	cout << n << endl;
+};
+Unroll<5>::run(lambda);
+```
+
+---
+### SFINAE
+
+Problem:
+```cpp
+#include <iostream>
+#include <string>
+
+template <typename T>
+void print_size(const T& obj) {
+    std::cout << obj.size() << std::endl;
+}
+
+int main() {
+    std::string s = "Hello";
+    print_size(s);  // Работает, у std::string есть size()
+
+    int x = 42;
+    print_size(x);  // Compilation Error! У int нет size()
+}
+```
+У `int` нет `size()`, у нас выходит ошибка компиляции.
+
+Как можно проверить и указать правильную специализацию шаблона?
+
+---
+
+**What is SFINAE?**
+Шаблоны которые не подходят под переданный тип исключаются и переходят на следующий, а не выкидывают ошибку.
+
+В примере ниже мы declare-им template функцию,
+потом определяем specialization для int и unsigned int,
+И дедукция работате для этих функций, но проблема возникнет, когда мы заходим передать long, long long, float, double, etc.
+
+```cpp
+#include <iostream>
+using std::cout, std::endl;
+
+template <typename T>
+T ceil_div(T value, T div);
+
+template <>
+unsigned ceil_div<unsigned>(unsigned value, unsigned div){
+    return (value + div - 1) / div;
+}
+
+template <>
+int ceil_div<int>(int value, int div){
+    return (value > 0) ^ (div > 0) ? (value / div) : (value + div - 1) / div;
+}
+
+int main(){
+    int c = ceil_div(8, 2); // Ok
+    cout << c << ": " << typeid(c).name() << endl;
+
+    unsigned u = 10;
+    cout << u << ": " << typeid(u).name() << endl;
+
+    unsigned uu = ceil_div(8u, 2u); // Ok
+    // unsigned long luu = ceil_div(8lu, 2lu); // Compilation Error: undefined reference to `unsigned long ceil_div<unsigned long>(unsigned long, unsigned long)'
+    unsigned long luu = ceil_div<int>(8lu, 2lu); // Ok, without deduction, explicitly setting to int
+}
+```
+
+`enable_if`:
+```cpp
+#include <iostream>
+
+template <bool Condition, typename T = void>
+class enable_if {
+// type is not defined of Condition == false
+};
+
+template <typename T>
+class enable_if<true, T> {
+public:
+	using type = T;
+};
+```
+
+`enable_if_t` - is an alias of `typename enable_if<>::type`
+```cpp
+template <bool Condition, typename T>
+using enable_if_t = typename enable_if<Condition, T>::type;
+```
+
+```cpp
+enable_if_t<2+2==4, int> a = (float) 42.f; // int a = 42
+std::cout << a << ": " << typeid(a).name() << std::endl; // 42: i
+```
+
+---
+
