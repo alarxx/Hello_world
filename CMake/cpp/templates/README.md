@@ -493,9 +493,81 @@ Unroll<5>::run(lambda);
 ```
 
 ---
+
+
 ### SFINAE
 
-Problem:
+[[Substitution Failure Is Not An Error (SFINAE)]]
+#### Brief about SFINAE
+
+**SFINAE** - это Compile-time проверка подходит ли тип под специализацию шаблона.
+Специализированные шаблоны которые не подходят под переданный тип исключаются и переходят на следующий или base, а не выкидывают ошибку.
+
+Мы использум SFINAE, если хотим создать специализацию только под определенный тип и не разрешать использовать неподходящие.
+
+SFINAE работает только в случае подстановки шаблонного параметра.
+То есть это нужно чтобы компилятор мог выбрать какой из шаблонов выбрать.
+
+- `enable_if<Condition, Type>`
+- `Condition<T, expression(T) = void> : true_type | false_type` `::value`
+
+```cpp
+template <bool Condition, template Type>
+class enable_if {};
+
+// Specialization
+template <typename Type>
+class enable_if<true, Type> {
+public:
+	static constexpr type = Type;
+};
+
+template <bool Condition, template Type>
+using enable_if_t = enable_if<Condition, Type>::type;
+```
+
+Для SFINAE очень важно понимание Template Specialization.
+Нам не хватит одного using:
+```cpp
+template <typename T>
+using has_size = decltype(declval<T>().size(), true_type/*false?*/);
+```
+
+`Condition`:
+```cpp
+// Default Base
+template <typename T, typename U = void>
+class has_size : false_type {};
+// U нужен только для проверки T, он по итогу всегда void
+
+// Specialization
+template <typename T>
+class has_size<T, decltype( ? , void())> : true_type {};
+
+template <typename T>
+using has_size_v = has_size<T>::value;
+```
+
+На месте ? мы должны вписать проверку:
+```cpp
+decltype(declval<T>().size(), void())
+```
+
+Using:
+```cpp
+template <typename T>
+enable_if_t<has_size_v<T>, T>
+fun(T t){...}
+
+fun(string("Hello")); // Ok
+fun(vector({1, 2, 3})); //Ok
+fun(42.f); // Compile-time Error
+```
+
+---
+
+#### SFINAE Problem
+
 ```cpp
 #include <iostream>
 #include <string>
@@ -518,14 +590,11 @@ int main() {
 Как можно проверить и указать правильную специализацию шаблона?
 
 ---
-
-**What is SFINAE?**
-Шаблоны которые не подходят под переданный тип исключаются и переходят на следующий, а не выкидывают ошибку.
-
+#### Template Specialization
+irrelevant in SFINAE context.
 В примере ниже мы declare-им template функцию,
 потом определяем specialization для int и unsigned int,
-И дедукция работате для этих функций, но проблема возникнет, когда мы заходим передать long, long long, float, double, etc.
-
+И дедукция работате для этих функций, но ==проблема возникнет, когда мы заходим передать не специализированные типы int и unsigned int==: long, long long, float, double, etc :
 ```cpp
 #include <iostream>
 using std::cout, std::endl;
@@ -540,7 +609,12 @@ unsigned ceil_div<unsigned>(unsigned value, unsigned div){
 
 template <>
 int ceil_div<int>(int value, int div){
-    return (value > 0) ^ (div > 0) ? (value / div) : (value + div - 1) / div;
+    // XOR bitwise operator
+    // Если один из них меньше 0, то результат будет с минусом:
+    // (-5/2)=-2.5; ceil(-2.5)=-2
+    return (value > 0) ^ (div > 0) ?
+	    (value / div) :
+	    (value + div - 1) / div;
 }
 
 int main(){
@@ -556,7 +630,15 @@ int main(){
 }
 ```
 
-`enable_if`:
+---
+
+#### What is SFINAE?
+**SFINAE** - это Compile-time проверка подходит ли тип под специализацию шаблона.
+Шаблоны которые не подходят под переданный тип исключаются и переходят на следующий или base, а не выкидывают ошибку.
+
+---
+#### `enable_if`:
+Если мы передаем в enable_if правильный expression, то его type будет тот, который мы передали, но если expression false, то type is undefined и у нас выходит ошибка:
 ```cpp
 #include <iostream>
 
@@ -565,6 +647,7 @@ class enable_if {
 // type is not defined of Condition == false
 };
 
+// Partial Specialization
 template <typename T>
 class enable_if<true, T> {
 public:
@@ -580,8 +663,167 @@ using enable_if_t = typename enable_if<Condition, T>::type;
 
 ```cpp
 enable_if_t<2+2==4, int> a = (float) 42.f; // int a = 42
-std::cout << a << ": " << typeid(a).name() << std::endl; // 42: i
+
+cout << a << ": " << typeid(a).name() << endl; // 42: i
 ```
 
 ---
 
+```cpp
+template <typename T>
+enable_if_t<std::is_floating_point_v<T>, float>
+fun(T t){
+    cout << "float fun" << endl;
+    return t;
+}
+
+template <typename T>
+enable_if_t<std::is_integral_v<T>, int>
+fun(T t){
+    cout << "int fun" << endl;
+    return t;
+}
+```
+
+```cpp
+fun(1); // int fun
+fun(1.f); // float fun
+fun(std::string("Hello")); // Error
+```
+
+---
+
+#### Как написать свою проверку?
+
+```cpp
+#include <type_traits>
+using std::void_t;
+using std::declval;
+
+template <typename T, typename U = void>
+class has_size {
+public:
+	static constexpr bool value = false;
+	// Либо можно наследоваться от std::false_type
+};
+
+// Template Partial Specialization
+template <typename T>
+class has_size<T, void_t<decltype(declval<T>().size()>> {
+public:
+	static constexpr bool value = true;
+	// Либо можно наследоваться от std::true_type
+};
+
+// Alias of has_size<T>::value
+template <typename T>
+inline constexpr bool has_size_v = has_size<T>::value;
+```
+
+`std::void_t< decltype(std::declval<T>().size())` ??
+
+[[С++ Programming Language - auto]]
+
+**[`decltype(entity)`](https://en.cppreference.com/w/cpp/utility/declval)** - returns type in-compile time
+```cpp
+decltype('A') x; // char x
+```
+
+**[`declval<T>()`](https://en.cppreference.com/w/cpp/utility/declval)** - makes instance of T and makes possible to use member functions of T. Используется только in unevaluated context, типично с decltype.
+```cpp
+#include <utility>
+decltype(Default().foo())               n1 = 1; // type of n1 is int
+decltype(std::declval<Default>().foo()) n2 = 1; // same
+```
+При этом он не вызывает конструктор класса Default, это все происходит как бы во время компиляции. Так же и не вызывается метод foo().
+
+[[C++ Programming Language - comma operator]]
+
+**[`void_t`](https://en.cppreference.com/w/cpp/types/void_t)**
+```cpp
+template <typename ... >
+using void_t = void;
+```
+
+То есть нам без разницы на U в has_size.
+
+---
+
+```cpp
+template <typename T>
+enable_if_t<has_size_v<T>, std::string>
+fun(T t){
+	cout << "string fun" << endl;
+    return t;
+}
+```
+
+---
+
+#### integral_constant: true_type, false_type
+https://en.cppreference.com/w/cpp/types/integral_constant
+```cpp
+template <typename T, T v>
+class integral_constant {
+public:
+	static constexpr T value = v;
+	using value_type = T;
+	// using type = integral_constant<T, v>;
+	// constexpr operator T(){ return v; }
+};
+```
+
+`true_type` and `false_type` classes:
+```cpp
+using false_type = integral_constant<bool, false>;
+using true_type = integral_constant<bool, true>;
+```
+
+---
+
+#### SFINAE is about Templates Specialization
+
+SFINAE работает только в случае подстановки шаблонного параметра.
+То есть это нужно чтобы компилятор мог выбрать какой из шаблонов выбрать.
+
+```cpp
+template <typename T>
+struct has_size {
+private:
+    // Trailing return type: auto fun() -> int;
+    static constexpr auto test(int) ->
+	    decltype(declval<T>().size(), true_type());
+	static constexpr false_type test(...);
+public:
+    static constexpr bool value = decltype(test(0))::value;
+};
+
+int main() {
+    has_size<string>::value;  // true
+    has_size<int>::value;  // Runtime Error
+}
+```
+Здесь получается `.size()` не существует и во время компиляции выходит ошибка подстановки (substitution).
+
+Вот так SFINAE будет работать:
+```cpp
+template <typename T>
+struct has_size {
+private:
+    // Trailing return type: auto fun() -> int;
+    template <typename U> // without it it won't work
+    static constexpr auto test(int) ->
+	    decltype(declval<U>().size(), true_type());
+    template <typename>
+    static constexpr false_type test(...);
+public:
+    static constexpr bool value = decltype(test<T>(0))::value;
+};
+
+int main() {
+    has_size<string>::value;  // true
+    has_size<int>::value;  // false
+}
+```
+
+---
