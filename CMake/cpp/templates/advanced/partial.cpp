@@ -123,7 +123,9 @@ class Compare <B<T>, B<R>> : public std::true_type {};
 template <typename T>
 class MyString {
 public:
-    MyString(T){}
+    MyString(T t){
+        std::cout << "MyString Constructor: " << typeid(t).name() << std::endl; // i
+    }
     MyString get(){
         return MyString("abc");
     }
@@ -132,6 +134,8 @@ MyString(char const *) -> MyString<std::string>; // deduction guide
 // Factory vs. MyString<const char *> cstr("abc")
 template <typename T> auto make_my_string(const T& x){
     return MyString(x);
+    // deduction guide make
+    // return MyString<std::string>(x);
 } // Но никто не гарантирует, что это будет строка
 
 
@@ -170,14 +174,21 @@ int main(){
     // ---
     cout << "---" << endl;
     const char * cstr = "abc";
-    // MyString sptr(cstr);
-    // MyString sptr={cstr};
-    MyString sptr = make_my_string(cstr);
-    MyString<const char *> csptr={cstr};
-    std::cout << typeid(sptr).name() << std::endl;
-    std::cout << typeid(sptr.get()).name() << std::endl;
+
+    MyString csptr(cstr); // string
+    // MyString csptr={cstr}; // string
+    // MyString csptr = cstr; // error, присваивание с deduction к шаблону не поддерживается
+    // MyString<const char *> csptr = cstr; // const char *
+    // MyString<const char *> csptr(cstr); // const char *
     std::cout << typeid(csptr).name() << std::endl;
     std::cout << typeid(csptr.get()).name() << std::endl;
+
+    // Но если мы хотим, чтобы всегда было <std::string> мы можем использовать factory
+    MyString sptr = make_my_string(cstr);
+    // Теперь мы не можем explicitly указывать тип
+    // MyString<const char *> sptr = make_my_string(cstr); // Error, <string> to <const char *>
+    std::cout << typeid(sptr).name() << std::endl;
+    std::cout << typeid(sptr.get()).name() << std::endl;
 
     // ---
     cout << "---" << endl;
