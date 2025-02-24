@@ -907,6 +907,17 @@ fun(T t){
     std::cout << "has_size: " << t << ", type: " << typeid(t).name() << std::endl;
 }
 ```
+Or we can use Trailing Return Type using arrow (`auto fun() -> type`):
+```cpp
+template <typename T>
+auto fun(T t) -> std::enable_if_t<std::is_arithmetic_v<T>, void> {
+    std::cout << "is_arithmetic: " << t << ", type: " << typeid(t).name() << std::endl;
+}
+template <typename T>
+auto fun(T t) -> std::enable_if_t<has_size_v<T>, void> {
+    std::cout << "has_size: " << t << ", type: " << typeid(t).name() << std::endl;
+}
+```
 
 ```cpp
 int main(){

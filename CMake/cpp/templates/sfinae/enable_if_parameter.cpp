@@ -70,8 +70,7 @@ fun(T t){
     std::cout << "is_arithmetic: " << t << ", type: " << typeid(t).name() << std::endl;
 }
 template <typename T>
-std::enable_if_t<has_size_v<T>, void>
-fun(T t){
+auto fun(T t) -> std::enable_if_t<has_size_v<T>, void> {
     std::cout << "has_size: " << t << ", type: " << typeid(t).name() << std::endl;
 }
 // ------
