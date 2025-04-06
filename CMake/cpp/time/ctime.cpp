@@ -28,8 +28,8 @@ int main(){
     struct tm datetime;
 
     timestamp = time(NULL);
-    datetime = *localtime(&timestamp); // UTC
-    // datetime = *gmtime(&timestamp); // GMT=UTC+1
+    datetime = *localtime(&timestamp); // UTC+Zone / GMT+Zone
+    // datetime = *gmtime(&timestamp); // GMT=UTC
     std::cout << datetime.tm_hour << std::endl;
     std::cout << datetime.tm_year << std::endl; // Number of years since 1900
     std::cout << asctime(&datetime) << std::endl; // "%a %b %e %H:%M:%S %Y"
