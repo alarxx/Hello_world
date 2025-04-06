@@ -31,7 +31,7 @@ int main(){
     datetime = *localtime(&timestamp); // UTC
     // datetime = *gmtime(&timestamp); // GMT=UTC+1
     std::cout << datetime.tm_hour << std::endl;
-    std::cout << datetime.tm_year << std::endl;
+    std::cout << datetime.tm_year << std::endl; // Number of years since 1900
     std::cout << asctime(&datetime) << std::endl; // "%a %b %e %H:%M:%S %Y"
 
     char outstrf[50];
